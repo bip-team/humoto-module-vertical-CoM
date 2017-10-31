@@ -1,0 +1,15 @@
+This is a demo of compiling external modules for Humoto, i.e., modules which
+are not stored in the main repository of Humoto.
+
+Directory layout:
+    humoto          -- a submodule which links the main repository of Humoto;
+    extra_modules   -- a folder with extra modules for Humoto containing a
+                       single mock example;
+    Makefile        -- compilation script for the example module.
+
+The example module is compiled with 'make all' command. You can learn the
+necessary cmake parameters for Humoto compilation scripts by reading Makefile.
+
+You can use this repository as a template for new Humoto modules -- for this
+purpose you have to replace the mock module 'extra_modules/example' with your
+code.
