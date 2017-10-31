@@ -11,6 +11,7 @@ all:
 					-DHUMOTO_MODULES_DIRS=`pwd`/../extra_modules/ \
 					-DHUMOTO_BRIDGE_qpOASES=ON \
 					-DHUMOTO_BRIDGE_config_yaml=ON \
+					-DHUMOTO_MODULE_wpg04=ON \
 					-DHUMOTO_MODULE_wpg05=ON \
 					../humoto/
 	cd build; ${MAKE} ${MAKE_FLAGS}
