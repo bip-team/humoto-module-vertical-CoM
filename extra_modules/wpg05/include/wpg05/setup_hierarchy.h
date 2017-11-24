@@ -15,7 +15,7 @@
 ///
 /// @param opt_problem The optimization problem on which tasks will be added
 /// @param params The problem's parameters (for the tasks gains)
-//void setupHierarchy_v0(humoto::OptimizationProblem& opt_problem,
+// void setupHierarchy_v0(humoto::OptimizationProblem& opt_problem,
 //                       const humoto::wpg05::ProblemParameters& params)
 //{
 //  // Tasks, which are used in the control problem
@@ -46,34 +46,32 @@
 void setupHierarchy_v1(humoto::OptimizationProblem& opt_problem,
                        const humoto::wpg05::ProblemParameters& params)
 {
-  // Tasks, which are used in the control problem
-  // COST FUNCTIONS
-  humoto::TaskSharedPointer task_com_height(
-      new humoto::wpg05::TaskCoMHeight(params.gainTaskCoMHeight_));
-  humoto::TaskSharedPointer task_cop_pos_ref(
-      new humoto::wpg05::TaskCoPPosRef(params.gainTaskCoPPosRef_));
-  humoto::TaskSharedPointer task_com_velocity(
-      new humoto::wpg05::TaskCoMVelocity(params.gainTaskVelocity_));
-  humoto::TaskSharedPointer task_minimize_jerk(
-      new humoto::TaskZeroVariables(params.gainTaskMinJerk_));
-  // CONSTRAINTS
-  humoto::TaskSharedPointer task_cop_bounds(
-      new humoto::wpg05::TaskCoPBoundsVerticalMotion(
-          params.gainTaskCoPBounds_));
-  humoto::TaskSharedPointer task_kinematics_polygon(
-      new humoto::wpg05::TaskKinematicsPolygon(
-          params.gainTaskKinematicsPolygon_));
+    // Tasks, which are used in the control problem
+    // COST FUNCTIONS
+    humoto::TaskSharedPointer task_com_height(
+        new humoto::wpg05::TaskCoMHeight(params.gainTaskCoMHeight_));
+    humoto::TaskSharedPointer task_cop_pos_ref(
+        new humoto::wpg05::TaskCoPPosRef(params.gainTaskCoPPosRef_));
+    humoto::TaskSharedPointer task_com_velocity(
+        new humoto::wpg05::TaskCoMVelocity(params.gainTaskVelocity_));
+    humoto::TaskSharedPointer task_minimize_jerk(
+        new humoto::TaskZeroVariables(params.gainTaskMinJerk_));
+    // CONSTRAINTS
+    humoto::TaskSharedPointer task_cop_bounds(
+        new humoto::wpg05::TaskCoPBoundsVerticalMotion(params.gainTaskCoPBounds_));
+    humoto::TaskSharedPointer task_kinematics_polygon(
+        new humoto::wpg05::TaskKinematicsPolygon(params.gainTaskKinematicsPolygon_));
 
-  // reset the optimization problem
-  opt_problem.reset(2);
+    // reset the optimization problem
+    opt_problem.reset(2);
 
-  // Push tasks into the stack/hierarchy
-  // CONSTRAINTS
-  opt_problem.pushTask(task_cop_bounds, 0);
-  opt_problem.pushTask(task_kinematics_polygon, 0);
-  // COST FUNCTIONS
-  opt_problem.pushTask(task_com_height, 1);
-  opt_problem.pushTask(task_cop_pos_ref, 1);
-  opt_problem.pushTask(task_com_velocity, 1);
-  opt_problem.pushTask(task_minimize_jerk, 1);
+    // Push tasks into the stack/hierarchy
+    // CONSTRAINTS
+    opt_problem.pushTask(task_cop_bounds, 0);
+    opt_problem.pushTask(task_kinematics_polygon, 0);
+    // COST FUNCTIONS
+    opt_problem.pushTask(task_com_height, 1);
+    opt_problem.pushTask(task_cop_pos_ref, 1);
+    opt_problem.pushTask(task_com_velocity, 1);
+    opt_problem.pushTask(task_minimize_jerk, 1);
 }

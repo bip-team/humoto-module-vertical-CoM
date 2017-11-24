@@ -76,8 +76,8 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
         {
             zBoundsLow_(6 * i + 0) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
             zBoundsLow_(6 * i + 1) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
-            zBoundsLow_(6 * i + 2) =
-                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.zetaMin() * mpc.pbParams().g_;
+            zBoundsLow_(6 * i + 2) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) +
+                                     mpc.zetaMin() * mpc.pbParams().g_;
             zBoundsLow_(6 * i + 3) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
             zBoundsLow_(6 * i + 4) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
             zBoundsLow_(6 * i + 5) = -humoto::g_infinity;
@@ -87,8 +87,8 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
             zBoundsHigh_(6 * i + 2) = humoto::g_infinity;
             zBoundsHigh_(6 * i + 3) = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
             zBoundsHigh_(6 * i + 4) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
-            zBoundsHigh_(6 * i + 5) =
-                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.zetaMax() * mpc.pbParams().g_;
+            zBoundsHigh_(6 * i + 5) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) +
+                                      mpc.zetaMax() * mpc.pbParams().g_;
         }
 
         // Compute the A, l and u matrices

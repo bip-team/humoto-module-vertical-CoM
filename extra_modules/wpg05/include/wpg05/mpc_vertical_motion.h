@@ -177,32 +177,33 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @brief Main constructor of the MPC problem, based on the problems parameters
     ///
     /// @param pbParam problems parameters
-    MPCVerticalMotion(const ProblemParameters &pbParam)
-        : pb_params_(pbParam), velocity_selector_(3, 1),
-          step_plan_(pb_params_.leftStepsParameters_,
-                     pb_params_.rightStepsParameters_, pb_params_.t_,
-                     pb_params_.stepHeight_, pb_params_.footXwidth_,
+    MPCVerticalMotion(const ProblemParameters& pbParam)
+        : pb_params_(pbParam),
+          velocity_selector_(3, 1),
+          step_plan_(pb_params_.leftStepsParameters_, pb_params_.rightStepsParameters_,
+                     pb_params_.t_, pb_params_.stepHeight_, pb_params_.footXwidth_,
                      pb_params_.footYwidth_),
           rightFootTraj_(step_plan_.rightFoot()),
-          leftFootTraj_(step_plan_.leftFoot()), current_step_index_(0),
-          logger_(pb_params_.t_, step_plan_, rightFootTraj_, leftFootTraj_,
-                  pb_params_) {
-      std::cout << "Ctor MPCVerticalMotion" << std::endl;
-      t_ = pb_params_.t_;
-      zeta_ = pb_params_.zetaZero_;
-      zetaMin_ = zeta_ - pb_params_.zetaSpan_ / 2;
-      zetaMax_ = zeta_ + pb_params_.zetaSpan_ / 2;
-      // compute all the A, B, D, E matrices
-      computeAblock();
-      computeBblock();
-      computeA();
-      computeB();
-      computeC();
-      computeD();
-      computeE();
-      // condense the A, B, D, E matrices to get the Ux, Uu, Ox and Ou matrices
-      condenseTimeInvariant(Ux_, Uu_, pb_params_.nHorizon_, A_, B_);
-      condenseOutput(Ox_, Ou_, D_, E_, Ux_, Uu_);
+          leftFootTraj_(step_plan_.leftFoot()),
+          current_step_index_(0),
+          logger_(pb_params_.t_, step_plan_, rightFootTraj_, leftFootTraj_, pb_params_)
+    {
+        std::cout << "Ctor MPCVerticalMotion" << std::endl;
+        t_ = pb_params_.t_;
+        zeta_ = pb_params_.zetaZero_;
+        zetaMin_ = zeta_ - pb_params_.zetaSpan_ / 2;
+        zetaMax_ = zeta_ + pb_params_.zetaSpan_ / 2;
+        // compute all the A, B, D, E matrices
+        computeAblock();
+        computeBblock();
+        computeA();
+        computeB();
+        computeC();
+        computeD();
+        computeE();
+        // condense the A, B, D, E matrices to get the Ux, Uu, Ox and Ou matrices
+        condenseTimeInvariant(Ux_, Uu_, pb_params_.nHorizon_, A_, B_);
+        condenseOutput(Ox_, Ou_, D_, E_, Ux_, Uu_);
     }
 
     /// @brief Getter for pbParams
@@ -223,14 +224,14 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     const etools::Vector9& currentState() const { return current_state_; }
     /// @brief Getter for logger
     const Logger& logger() const { return logger_; }
-    Logger &logger() { return logger_; }
+    Logger& logger() { return logger_; }
 
     /// @brief Getter for stepPlan
     const StepPlan& stepPlan() const { return step_plan_; }
     /// @brief Getter for rightFootTraj
-    const FootTraj &rightFootTraj() const { return rightFootTraj_; }
+    const FootTraj& rightFootTraj() const { return rightFootTraj_; }
     /// @brief Getter for leftFootTraj
-    const FootTraj &leftFootTraj() const { return leftFootTraj_; }
+    const FootTraj& leftFootTraj() const { return leftFootTraj_; }
 
     /// @brief Getter for zetaMin
     const double& zetaMin() const { return zetaMin_; }
@@ -243,14 +244,12 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     ///@param[in] problem_parameters
     ///
     ///@return ControlProblemStatus::OK/ControlProblemStatus::STOPPED
-    ControlProblemStatus::Status update(
-        const humoto::wpg05::Model& model,
-        const humoto::wpg05::ProblemParameters& problem_parameters)
+    ControlProblemStatus::Status update(const humoto::wpg05::Model& model,
+                                        const humoto::wpg05::ProblemParameters& problem_parameters)
     {
         sol_structure_.reset();
         // Add a variable of size 3*n called JERK_VARIABLE_ID to the structure of the solution
-        sol_structure_.addSolutionPart("JERK_VARIABLE_ID",
-                                       problem_parameters.nHorizon_ * 3);
+        sol_structure_.addSolutionPart("JERK_VARIABLE_ID", problem_parameters.nHorizon_ * 3);
 
         current_state_ = model.state_.getStateVector();
 
@@ -271,7 +270,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     ///
     ///@return next model state.
     humoto::wpg05::ModelState getNextModelState(const humoto::Solution& solution,
-                                                  const humoto::wpg05::Model& model)
+                                                const humoto::wpg05::Model& model)
     {
         humoto::wpg05::ModelState state;
 

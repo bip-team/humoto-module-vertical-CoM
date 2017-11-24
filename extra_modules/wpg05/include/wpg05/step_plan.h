@@ -37,68 +37,69 @@ struct FootTraj
         z_.setZero();
         t_.setZero();
     }
-    Eigen::Vector3d operator()(long i) const {
-      Eigen::Vector3d pos(x_(i), y_(i), z_(i));
-      return pos;
+    Eigen::Vector3d operator()(long i) const
+    {
+        Eigen::Vector3d pos(x_(i), y_(i), z_(i));
+        return pos;
     }
 };
 
 struct Polynomial3D
 {
-  double t0;
-  etools::Vector3 x0;
-  etools::Vector7 ax;
-  etools::Vector7 ay;
-  etools::Vector7 az;
-  void plotBetween(double T0, double T1) {
-    Eigen::VectorXd t = Eigen::VectorXd::LinSpaced(100, T0, T1);
-    Eigen::VectorXd trajX, trajY, trajZ;
-    trajX.resize(t.size());
-    trajY.resize(t.size());
-    trajZ.resize(t.size());
-    applyPolynomial(trajX, ax, t, x0[0]);
-    applyPolynomial(trajY, ay, t, x0[1]);
-    applyPolynomial(trajZ, az, t, x0[2]);
-    Eigen::IOFormat cleanFmt(4, 0, ", ", "\n", "[", "]");
-    std::ofstream logFile("plotPolynomial.py");
+    double t0;
+    etools::Vector3 x0;
+    etools::Vector7 ax;
+    etools::Vector7 ay;
+    etools::Vector7 az;
+    void plotBetween(double T0, double T1)
+    {
+        Eigen::VectorXd t = Eigen::VectorXd::LinSpaced(100, T0, T1);
+        Eigen::VectorXd trajX, trajY, trajZ;
+        trajX.resize(t.size());
+        trajY.resize(t.size());
+        trajZ.resize(t.size());
+        applyPolynomial(trajX, ax, t, x0[0]);
+        applyPolynomial(trajY, ay, t, x0[1]);
+        applyPolynomial(trajZ, az, t, x0[2]);
+        Eigen::IOFormat cleanFmt(4, 0, ", ", "\n", "[", "]");
+        std::ofstream logFile("plotPolynomial.py");
 
-    logFile << "import matplotlib as mpl\n";
-    logFile << "from mpl_toolkits.mplot3d import Axes3D\n";
-    logFile << "import numpy as np\n";
-    logFile << "import matplotlib.pyplot as plt\n";
-    logFile << "time = np.array(" << t.transpose().format(cleanFmt) << ")\n";
-    logFile << "trajX = np.array(" << trajX.transpose().format(cleanFmt)
-            << ")\n";
-    logFile << "trajY = np.array(" << trajY.transpose().format(cleanFmt)
-            << ")\n";
-    logFile << "trajZ = np.array(" << trajZ.transpose().format(cleanFmt)
-            << ")\n";
-    logFile << "plt.plot(time, trajX, 'r', label='X')\n";
-    logFile << "plt.plot(time, trajY, 'g', label='Y')\n";
-    logFile << "plt.plot(time, trajZ, 'b', label='Z')\n";
-    logFile << "plt.legend()\n";
-    logFile << "plt.show()\n";
-    logFile.close();
-    std::string command = "python3 plotPolynomial.py";
-    system(command.c_str());
+        logFile << "import matplotlib as mpl\n";
+        logFile << "from mpl_toolkits.mplot3d import Axes3D\n";
+        logFile << "import numpy as np\n";
+        logFile << "import matplotlib.pyplot as plt\n";
+        logFile << "time = np.array(" << t.transpose().format(cleanFmt) << ")\n";
+        logFile << "trajX = np.array(" << trajX.transpose().format(cleanFmt) << ")\n";
+        logFile << "trajY = np.array(" << trajY.transpose().format(cleanFmt) << ")\n";
+        logFile << "trajZ = np.array(" << trajZ.transpose().format(cleanFmt) << ")\n";
+        logFile << "plt.plot(time, trajX, 'r', label='X')\n";
+        logFile << "plt.plot(time, trajY, 'g', label='Y')\n";
+        logFile << "plt.plot(time, trajZ, 'b', label='Z')\n";
+        logFile << "plt.legend()\n";
+        logFile << "plt.show()\n";
+        logFile.close();
+        std::string command = "python3 plotPolynomial.py";
+        system(command.c_str());
     }
 
     /// @brief Applies the polynomial defined by coeff to the list of values t and store the result
     /// in res
-    void applyPolynomial(Eigen::Ref<Eigen::VectorXd> res,
-                         const Eigen::VectorXd &coeff, Eigen::VectorXd t,
-                         double x0) {
-      // Vector t - t0
-      for (long i = 0; i < t.size(); ++i) {
-        t[i] = t[i] - t0;
-      }
-      Eigen::VectorXd tmp = Eigen::VectorXd::Constant(t.size(), 1.0);
-      Eigen::MatrixXd M(t.size(), coeff.size());
-      for (long i = 0; i < coeff.size(); ++i) {
-        M.col(i) = tmp;
-        tmp = tmp.cwiseProduct(t);
-      }
-      res = M * coeff + Eigen::VectorXd::Constant(t.size(), x0);
+    void applyPolynomial(Eigen::Ref<Eigen::VectorXd> res, const Eigen::VectorXd& coeff,
+                         Eigen::VectorXd t, double x0)
+    {
+        // Vector t - t0
+        for (long i = 0; i < t.size(); ++i)
+        {
+            t[i] = t[i] - t0;
+        }
+        Eigen::VectorXd tmp = Eigen::VectorXd::Constant(t.size(), 1.0);
+        Eigen::MatrixXd M(t.size(), coeff.size());
+        for (long i = 0; i < coeff.size(); ++i)
+        {
+            M.col(i) = tmp;
+            tmp = tmp.cwiseProduct(t);
+        }
+        res = M * coeff + Eigen::VectorXd::Constant(t.size(), x0);
     }
 };
 
@@ -125,9 +126,9 @@ class HUMOTO_LOCAL Step
     {
     }
 
-    void print() const {
-      std::cout << "[" << pos().transpose() << ", " << tMin_ << ", " << tMax_
-                << "]" << std::endl;
+    void print() const
+    {
+        std::cout << "[" << pos().transpose() << ", " << tMin_ << ", " << tMax_ << "]" << std::endl;
     }
 
     /// @brief Getter for x
@@ -180,10 +181,9 @@ class HUMOTO_LOCAL StepPlan
     /// straight line between
     /// @param footXwidth Width of foot along the X direction (forward)
     /// @param footYwidth Width of foot along the Y direction (sideway)
-    StepPlan(const std::vector<std::vector<double> > &leftStepsParameters,
-             const std::vector<std::vector<double> > &rightStepsParameters,
-             double T, double hStep = 0.4, double footXwidth = 0.2,
-             double footYwidth = 0.1);
+    StepPlan(const std::vector<std::vector<double> >& leftStepsParameters,
+             const std::vector<std::vector<double> >& rightStepsParameters, double T,
+             double hStep = 0.4, double footXwidth = 0.2, double footYwidth = 0.1);
 
     /// @brief Computes the values of xMin, xMax, yMin, yMax, z (Sustentation polygon) for each time
     /// step
@@ -226,7 +226,7 @@ class HUMOTO_LOCAL StepPlan
 
     /// @brief Getter for position of support foot
     /// {x0,y0,z0,x1,y1,z1,...xN,yN,zN} (middle of both foot in DS phase)
-    const Eigen::VectorXd &pos() const { return pos_; }
+    const Eigen::VectorXd& pos() const { return pos_; }
 
     /// @brief Getter for tMax
     const double& tMax() const { return tMax_; }
@@ -237,10 +237,10 @@ class HUMOTO_LOCAL StepPlan
     const FootTraj& leftFoot() const { return leftFoot_; }
 
     /// @brief Getter for leftSteps
-    const std::vector<Step> &leftSteps() const { return leftSteps_; }
+    const std::vector<Step>& leftSteps() const { return leftSteps_; }
 
     /// @brief Getter for rightSteps
-    const std::vector<Step> &rightSteps() const { return rightSteps_; }
+    const std::vector<Step>& rightSteps() const { return rightSteps_; }
 
   private:
     /// @brief List of left foot steps
@@ -275,100 +275,104 @@ class HUMOTO_LOCAL StepPlan
     double stepYWidth_;
 };
 
-StepPlan::StepPlan(const std::vector<std::vector<double> > &leftStepsParameters,
-                   const std::vector<std::vector<double> > &rightStepsParameters,
-                   double T, double hStep, double footXwidth, double footYwidth)
-    : T_(T), heightSteps_(hStep), stepXWidth_(footXwidth),
-      stepYWidth_(footYwidth) {
-  std::cout << "Ctor StepPlan" << std::endl;
-  for (size_t i = 0; i < leftStepsParameters.size(); ++i) {
-    HUMOTO_ASSERT(leftStepsParameters.at(i).size() == 5,
-                  "[Config] each step parameter must be a size 5 vector]")
-    leftSteps_.push_back(Step(leftStepsParameters.at(i)));
-  }
-  for (size_t i = 0; i < rightStepsParameters.size(); ++i) {
-    HUMOTO_ASSERT(rightStepsParameters.at(i).size() == 5,
-                  "[Config] each step parameter must be a size 5 vector]")
-    rightSteps_.push_back(Step(rightStepsParameters.at(i)));
-  }
-  computePlan();
+StepPlan::StepPlan(const std::vector<std::vector<double> >& leftStepsParameters,
+                   const std::vector<std::vector<double> >& rightStepsParameters, double T,
+                   double hStep, double footXwidth, double footYwidth)
+    : T_(T), heightSteps_(hStep), stepXWidth_(footXwidth), stepYWidth_(footYwidth)
+{
+    std::cout << "Ctor StepPlan" << std::endl;
+    for (size_t i = 0; i < leftStepsParameters.size(); ++i)
+    {
+        HUMOTO_ASSERT(leftStepsParameters.at(i).size() == 5,
+                      "[Config] each step parameter must be a size 5 vector]")
+        leftSteps_.push_back(Step(leftStepsParameters.at(i)));
+    }
+    for (size_t i = 0; i < rightStepsParameters.size(); ++i)
+    {
+        HUMOTO_ASSERT(rightStepsParameters.at(i).size() == 5,
+                      "[Config] each step parameter must be a size 5 vector]")
+        rightSteps_.push_back(Step(rightStepsParameters.at(i)));
+    }
+    computePlan();
 }
 
 Polynomial3D StepPlan::computeFeetTrajectory(const Step& prevStep, const Step& nextStep,
                                              const double& hStep)
 {
-  Polynomial3D res;
-  res.x0 = prevStep.pos();
-  res.t0 = prevStep.tMax();
+    Polynomial3D res;
+    res.x0 = prevStep.pos();
+    res.t0 = prevStep.tMax();
 
-  etools::Vector3 X0(0.0, 0.0, 0.0);
-  etools::Vector3 X1(nextStep.x() - prevStep.x(), nextStep.y() - prevStep.y(),
-                     nextStep.z() - prevStep.z());
-  etools::Vector3 Xmid = 0.5 * (X1 + X0) + etools::Vector3(0, 0, hStep);
-  // T0 and its powers
-  double T0 = 0.0;
-  double T02 = T0 * T0;
-  double T03 = T02 * T0;
-  double T04 = T03 * T0;
-  double T05 = T04 * T0;
-  double T06 = T05 * T0;
+    etools::Vector3 X0(0.0, 0.0, 0.0);
+    etools::Vector3 X1(nextStep.x() - prevStep.x(), nextStep.y() - prevStep.y(),
+                       nextStep.z() - prevStep.z());
+    etools::Vector3 Xmid = 0.5 * (X1 + X0) + etools::Vector3(0, 0, hStep);
+    // T0 and its powers
+    double T0 = 0.0;
+    double T02 = T0 * T0;
+    double T03 = T02 * T0;
+    double T04 = T03 * T0;
+    double T05 = T04 * T0;
+    double T06 = T05 * T0;
 
-  // T1 and its powers
-  double T1 = nextStep.tMin() - prevStep.tMax();
-  double T12 = T1 * T1;
-  double T13 = T12 * T1;
-  double T14 = T13 * T1;
-  double T15 = T14 * T1;
-  double T16 = T15 * T1;
+    // T1 and its powers
+    double T1 = nextStep.tMin() - prevStep.tMax();
+    double T12 = T1 * T1;
+    double T13 = T12 * T1;
+    double T14 = T13 * T1;
+    double T15 = T14 * T1;
+    double T16 = T15 * T1;
 
-  // Tmid and its powers
-  double Tm = T1 / 2;
-  double Tm2 = Tm * Tm;
-  double Tm3 = Tm2 * Tm;
-  double Tm4 = Tm3 * Tm;
-  double Tm5 = Tm4 * Tm;
-  double Tm6 = Tm5 * Tm;
+    // Tmid and its powers
+    double Tm = T1 / 2;
+    double Tm2 = Tm * Tm;
+    double Tm3 = Tm2 * Tm;
+    double Tm4 = Tm3 * Tm;
+    double Tm5 = Tm4 * Tm;
+    double Tm6 = Tm5 * Tm;
 
-  // std::cout << "\n\nComputeFeetTraj between:\n[" << X0.transpose() << "] at t
-  // = " << T0
-  //          << "\nand [" << X1.transpose() << "] at t = " << T1 << "\nGoing
-  //          through ["
-  //          << Xmid.transpose() << "] at t = " << Tm << std::endl;
+    // std::cout << "\n\nComputeFeetTraj between:\n[" << X0.transpose() << "] at t
+    // = " << T0
+    //          << "\nand [" << X1.transpose() << "] at t = " << T1 << "\nGoing
+    //          through ["
+    //          << Xmid.transpose() << "] at t = " << Tm << std::endl;
 
-  etools::Vector7 bx, by, bz;
-  etools::Matrix7 M;
-  bx << X0.x(), 0, 0, X1.x(), 0, 0, Xmid.x();
-  by << X0.y(), 0, 0, X1.y(), 0, 0, Xmid.y();
-  bz << X0.z(), 0, 0, X1.z(), 0, 0, Xmid.z();
-  M.row(0) << 1, T0, T02, T03, T04, T05, T06;
-  M.row(1) << 0, 1, 2 * T0, 3 * T02, 4 * T03, 5 * T04, 6 * T05;
-  M.row(2) << 0, 0, 2, 6 * T0, 12 * T02, 20 * T03, 30 * T04;
-  M.row(3) << 1, T1, T12, T13, T14, T15, T16;
-  M.row(4) << 0, 1, 2 * T1, 3 * T12, 4 * T13, 5 * T14, 6 * T15;
-  M.row(5) << 0, 0, 2, 6 * T1, 12 * T12, 20 * T13, 30 * T14;
-  M.row(6) << 1, Tm, Tm2, Tm3, Tm4, Tm5, Tm6;
-  res.ax = M.colPivHouseholderQr().solve(bx);
-  res.ay = M.colPivHouseholderQr().solve(by);
-  res.az = M.colPivHouseholderQr().solve(bz);
-  Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
-  return res;
+    etools::Vector7 bx, by, bz;
+    etools::Matrix7 M;
+    bx << X0.x(), 0, 0, X1.x(), 0, 0, Xmid.x();
+    by << X0.y(), 0, 0, X1.y(), 0, 0, Xmid.y();
+    bz << X0.z(), 0, 0, X1.z(), 0, 0, Xmid.z();
+    M.row(0) << 1, T0, T02, T03, T04, T05, T06;
+    M.row(1) << 0, 1, 2 * T0, 3 * T02, 4 * T03, 5 * T04, 6 * T05;
+    M.row(2) << 0, 0, 2, 6 * T0, 12 * T02, 20 * T03, 30 * T04;
+    M.row(3) << 1, T1, T12, T13, T14, T15, T16;
+    M.row(4) << 0, 1, 2 * T1, 3 * T12, 4 * T13, 5 * T14, 6 * T15;
+    M.row(5) << 0, 0, 2, 6 * T1, 12 * T12, 20 * T13, 30 * T14;
+    M.row(6) << 1, Tm, Tm2, Tm3, Tm4, Tm5, Tm6;
+    res.ax = M.colPivHouseholderQr().solve(bx);
+    res.ay = M.colPivHouseholderQr().solve(by);
+    res.az = M.colPivHouseholderQr().solve(bz);
+    Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
+    return res;
 }
 
 void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> steps,
                                          const double dt)
 {
-  std::cout << "computeFullFeetTrajectory" << std::endl;
-  for (size_t i = 0; i < steps.size(); ++i) {
-    steps[i].print();
-  }
-  size_t iStep = 0;
-  size_t iTimeStep = 0;
-  double currentTime = 0.0;
+    std::cout << "computeFullFeetTrajectory" << std::endl;
+    for (size_t i = 0; i < steps.size(); ++i)
+    {
+        steps[i].print();
+    }
+    size_t iStep = 0;
+    size_t iTimeStep = 0;
+    double currentTime = 0.0;
 
-  Eigen::VectorXd time(footTraj.x_.size());
+    Eigen::VectorXd time(footTraj.x_.size());
 
-  for (long i = 0; i < time.size(); ++i) {
-    time[i] = i * dt;
+    for (long i = 0; i < time.size(); ++i)
+    {
+        time[i] = i * dt;
     }
 
     footTraj.t_ = time;
@@ -395,19 +399,20 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
                           time.segment(iTimeStep, nTimeSteps), p.x0[1]);
         p.applyPolynomial(footTraj.z_.segment(iTimeStep, nTimeSteps), p.az,
                           time.segment(iTimeStep, nTimeSteps), p.x0[2]);
-        for (size_t i = 0; i < nTimeSteps; ++i) {
-          footTraj.supportFoot_[iTimeStep + i] = false;
+        for (size_t i = 0; i < nTimeSteps; ++i)
+        {
+            footTraj.supportFoot_[iTimeStep + i] = false;
         }
 
         iTimeStep += nTimeSteps;
         currentTime += nTimeSteps * dt;
 
         // Then the phase with foot on the ground
-        while (currentTime < steps.at(iStep+1).tMax())
+        while (currentTime < steps.at(iStep + 1).tMax())
         {
-            footTraj.x_[iTimeStep] = steps[iStep+1].x();
-            footTraj.y_[iTimeStep] = steps[iStep+1].y();
-            footTraj.z_[iTimeStep] = steps[iStep+1].z();
+            footTraj.x_[iTimeStep] = steps[iStep + 1].x();
+            footTraj.y_[iTimeStep] = steps[iStep + 1].y();
+            footTraj.z_[iTimeStep] = steps[iStep + 1].z();
             footTraj.supportFoot_[iTimeStep] = true;
             iTimeStep++;
             currentTime += dt;
@@ -417,24 +422,23 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
 
 void StepPlan::computePlan(std::vector<Step> leftSteps, std::vector<Step> rightSteps)
 {
-  std::cout << "ComputePlan" << std::endl;
-  Phase currentPhase;
-  leftSteps_ = leftSteps;
-  rightSteps_ = rightSteps;
-  tMax_ = leftSteps[0].tMax();
+    std::cout << "ComputePlan" << std::endl;
+    Phase currentPhase;
+    leftSteps_ = leftSteps;
+    rightSteps_ = rightSteps;
+    tMax_ = leftSteps[0].tMax();
 
-  // Find tMax
-  for (size_t i = 0; i < leftSteps_.size(); ++i)
-    if (leftSteps_[i].tMax() > tMax_)
-      tMax_ = leftSteps_[i].tMax();
-  for (size_t i = 0; i < rightSteps_.size(); ++i)
-    if (rightSteps_[i].tMax() > tMax_)
-      tMax_ = rightSteps_[i].tMax();
+    // Find tMax
+    for (size_t i = 0; i < leftSteps_.size(); ++i)
+        if (leftSteps_[i].tMax() > tMax_) tMax_ = leftSteps_[i].tMax();
+    for (size_t i = 0; i < rightSteps_.size(); ++i)
+        if (rightSteps_[i].tMax() > tMax_) tMax_ = rightSteps_[i].tMax();
 
-  int nTimeSteps = tMax_ / T_;
-  Eigen::VectorXd time(nTimeSteps);
-  for (long i = 0; i < nTimeSteps; i++) {
-    time(i) = i * T_;
+    int nTimeSteps = tMax_ / T_;
+    Eigen::VectorXd time(nTimeSteps);
+    for (long i = 0; i < nTimeSteps; i++)
+    {
+        time(i) = i * T_;
     }
 
     xMin_.resize(nTimeSteps);
