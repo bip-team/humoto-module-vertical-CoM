@@ -121,21 +121,21 @@ class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
     /// @brief Main constructor of the MPC problem, based on the problems parameters
     ///
     /// @param pbParam problems parameters
-    SimpleMPC(const ProblemParameters& pbParam)
-        : pbParams_(pbParam),
-          velocity_selector_(3, 1),
-          stepPlan_(pbParams_.leftStepsParameters_, pbParams_.rightStepsParameters_, pbParams_.t_),
+    SimpleMPC(const ProblemParameters &pbParam)
+        : pbParams_(pbParam), velocity_selector_(3, 1),
+          stepPlan_(pbParams_.leftStepsParameters_,
+                    pbParams_.rightStepsParameters_, pbParams_.t_),
           currentStepIndex_(0),
-          logger_(pbParams_.t_, stepPlan_, pbParams_)
-    {
-        // compute all the A, B, D, E matrices
-        computeA();
-        computeB();
-        computeD();
-        computeE();
-        // condense the A, B, D, E matrices to get the Ux, Uu, Ox and Ou matrices
-        condenseTimeInvariant(Ux_, Uu_, pbParams_.n_, A_, B_);
-        condenseOutput(Ox_, Ou_, D_, E_, Ux_, Uu_);
+          logger_(pbParams_.t_, stepPlan_, stepPlan_.rightFoot(),
+                  stepPlan_.leftFoot(), pbParams_) {
+      // compute all the A, B, D, E matrices
+      computeA();
+      computeB();
+      computeD();
+      computeE();
+      // condense the A, B, D, E matrices to get the Ux, Uu, Ox and Ou matrices
+      condenseTimeInvariant(Ux_, Uu_, pbParams_.nHorizon_, A_, B_);
+      condenseOutput(Ox_, Ou_, D_, E_, Ux_, Uu_);
     }
 
     /// @brief Getter for pbParams
@@ -169,7 +169,8 @@ class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
     {
         sol_structure_.reset();
         // Add a variable of size 3*n called JERK_VARIABLE_ID to the structure of the solution
-        sol_structure_.addSolutionPart("JERK_VARIABLE_ID", problem_parameters.n_ * 3);
+        sol_structure_.addSolutionPart("JERK_VARIABLE_ID",
+                                       problem_parameters.nHorizon_ * 3);
 
         currentState_ = model.state_.getStateVector();
 
@@ -204,7 +205,7 @@ class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
     }
 
     /// @brief Getter for PreviewHorizonLength
-    size_t getPreviewHorizonLength() const { return pbParams_.n_; }
+    size_t getPreviewHorizonLength() const { return pbParams_.nHorizon_; }
     /// @brief Getter for currentStepIndex
     size_t currentStepIndex() const { return currentStepIndex_; }
 

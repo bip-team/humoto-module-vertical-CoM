@@ -1,0 +1,80 @@
+SolverParameters:
+  crash_on_any_failure: true
+  max_number_of_iterations: 1000
+  max_cpu_time: 0
+  solve_two_levels_as_qp: true
+  QPoasesParameters:
+    enableRamping: 0
+    enableFarBounds: 1
+    enableFlippingBounds: 0
+    enableRegularisation: 1
+    enableFullLITests: 0
+    enableNZCTests: 0
+    enableDriftCorrection: 0
+    enableCholeskyRefactorisation: 0
+    enableEqualities: 1
+    terminationTolerance: 2.221e-07
+    boundTolerance: 2.221e-10
+    boundRelaxation: 10000
+    epsNum: -2.221e-13
+    epsDen: 2.221e-13
+    maxPrimalJump: 100000000
+    maxDualJump: 100000000
+    initialRamping: 0.5
+    finalRamping: 1
+    initialFarBounds: 1000000
+    growFarBounds: 1000
+    initialStatusBounds: 0
+    epsFlipping: 2.221e-13
+    numRegularisationSteps: 1
+    epsRegularisation: 2.221e-13
+    numRefinementSteps: 0
+    epsIterRef: 2.221e-14
+    epsLITests: 2.221e-11
+    epsNZCTests: 6.663e-13
+    rcondSMin: 1e-14
+    enableInertiaCorrection: 1
+    enableDropInfeasibles: 0
+    dropBoundPriority: 1
+    dropEqConPriority: 1
+    dropIneqConPriority: 1
+
+ProblemParameters:
+  zetaZero: 0.1
+  zetaSpan: 0.1
+  t: 0.10
+  endTime: 20
+  nHorizon: 20
+  comVelRef: [0.1, 0.0, 0.0]
+  comHeightRef: 1.0
+
+  gainTaskCoPBounds: 1
+  gainTaskKinematicsPolygon: 1
+  gainTaskCoMHeight: 1
+  gainTaskVelocity: 1
+  gainTaskMinJerk: 1
+  gainTaskCoPPosRef: 1
+
+  kinematicLimitZmin: 0.4
+  kinematicLimitZmax: 1.2
+  kinematicLimitXSpan: 0.6
+  kinematicLimitYSpan: 0.6
+  leftStepsParameters:
+    - [0  ,  0.10, 0.0,  0.0, 2.00]
+    - [0.4,  0.10, 0.0, 2.91, 3.99]
+    - [1.2,  0.10, 0.0, 4.91, 5.99]
+    - [2.0,  0.10, 0.0, 6.91, 7.99]
+    - [2.8,  0.10, 0.0, 8.91, 9.99]
+    - [3.6,  0.10, 0.0, 10.91, 11.99]
+    - [4.0,  0.10, 0.0, 12.91, 30.0]
+  rightStepsParameters:
+    - [0  , -0.10, 0.0,  0.0, 2.99]
+    - [0.8, -0.10, 0.0, 3.91, 4.99]
+    - [1.6, -0.10, 0.0, 5.91, 6.99]
+    - [2.4, -0.10, 0.0, 7.91, 8.99]
+    - [3.2, -0.10, 0.0, 9.91, 10.99]
+    - [4.0, -0.10, 0.0, 11.91, 30.0]
+ModelState:
+  position: [0.0, 0.0, 0.95]
+  velocity: [0.0, 0.0, 0.0]
+  acceleration: [0.0, 0.0, 0.0]

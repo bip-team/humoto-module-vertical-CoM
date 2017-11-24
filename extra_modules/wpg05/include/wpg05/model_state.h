@@ -47,6 +47,16 @@ class HUMOTO_LOCAL ModelState : public humoto::ModelState,
         acceleration_ << 0, 0, 0;
     }
 
+    double x() const { return position_(0); }
+    double y() const { return position_(1); }
+    double z() const { return position_(2); }
+    double dx() const { return velocity_(0); }
+    double dy() const { return velocity_(1); }
+    double dz() const { return velocity_(2); }
+    double ddx() const { return acceleration_(0); }
+    double ddy() const { return acceleration_(1); }
+    double ddz() const { return acceleration_(2); }
+
     /// @brief Returns the current state in vector form:
     /// [x; dx; ddx; y; dy; ddy; z; dz; ddz]
     etools::Vector9 getStateVector() const

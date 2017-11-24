@@ -1,0 +1,139 @@
+SolverParameters:
+  crash_on_any_failure: true
+  max_number_of_iterations: 1000
+  max_cpu_time: 0
+  solve_two_levels_as_qp: true
+  QPoasesParameters:
+    enableRamping: 0
+    enableFarBounds: 1
+    enableFlippingBounds: 0
+    enableRegularisation: 1
+    enableFullLITests: 0
+    enableNZCTests: 0
+    enableDriftCorrection: 0
+    enableCholeskyRefactorisation: 0
+    enableEqualities: 1
+    terminationTolerance: 2.221e-07
+    boundTolerance: 2.221e-10
+    boundRelaxation: 10000
+    epsNum: -2.221e-13
+    epsDen: 2.221e-13
+    maxPrimalJump: 100000000
+    maxDualJump: 100000000
+    initialRamping: 0.5
+    finalRamping: 1
+    initialFarBounds: 1000000
+    growFarBounds: 1000
+    initialStatusBounds: 0
+    epsFlipping: 2.221e-13
+    numRegularisationSteps: 1
+    epsRegularisation: 2.221e-13
+    numRefinementSteps: 0
+    epsIterRef: 2.221e-14
+    epsLITests: 2.221e-11
+    epsNZCTests: 6.663e-13
+    rcondSMin: 1e-14
+    enableInertiaCorrection: 1
+    enableDropInfeasibles: 0
+    dropBoundPriority: 1
+    dropEqConPriority: 1
+    dropIneqConPriority: 1
+
+ModelState:
+  position: [0.0, 0.0, 0.7]
+  velocity: [0.1, 0.0, 0.0]
+  acceleration: [0.0, 0.0, 0.0]
+
+ProblemParameters:
+  zetaZero: 0.1
+  zetaSpan: 0.1
+  t: 0.1
+  endTime: 15
+  nHorizon: 20
+  comVelRef: [0.4, 0.0, 0.0]
+  comHeightRef: 1.0
+
+  gainTaskCoPBounds: 1
+  gainTaskKinematicsPolygon: 1
+  gainTaskCoMHeight: 1
+  gainTaskVelocity: 0
+  gainTaskMinJerk: 1
+  gainTaskCoPPosRef: 1
+
+  soleToAnkle: [0.0, 0.0, 0.1]
+  comToLeftHip: [0.0, 0.1, -0.1]
+  comToRightHip: [0.0, -0.1, -0.1]
+
+  stepHeight: 0.10
+
+  ##############################################
+  #  Stairs St-Nazaire both feet on each step  #
+  ##############################################
+  #rightStepsParameters:
+  #  - [ 0.00 ,  -0.1 ,  0.000 ,  0.0 ,  1.59 ]
+  #  - [ 0.24 ,  -0.1 ,  0.195 ,  2.31 ,  3.1900000000000004 ]
+  #  - [ 0.48 ,  -0.1 ,  0.375 ,  3.9099999999999997 ,  4.79 ]
+  #  - [ 0.72 ,  -0.1 ,  0.555 ,  5.51 ,  6.39 ]
+  #  - [ 0.96 ,  -0.1 ,  0.735 ,  7.109999999999999 ,  7.989999999999999 ]
+  #  - [ 1.20 ,  -0.1 ,  0.880 ,  8.709999999999999 ,  100.0 ]
+  #leftStepsParameters:
+  #  - [ 0.00 ,   0.1 ,  0.000 ,  0.0 ,  2.3900000000000006 ]
+  #  - [ 0.24 ,   0.1 ,  0.195 ,  3.11 ,  3.99 ]
+  #  - [ 0.48 ,   0.1 ,  0.375 ,  4.71 ,  5.59 ]
+  #  - [ 0.72 ,   0.1 ,  0.555 ,  6.31 ,  7.1899999999999995 ]
+  #  - [ 0.96 ,   0.1 ,  0.735 ,  7.909999999999999 ,  8.79 ]
+  #  - [ 1.20 ,   0.1 ,  0.880 ,  9.51 ,  100.0 ]
+
+  #########################################
+  #  Stairs St-Nazaire one foot per step  #
+  #########################################
+  rightStepsParameters:
+    - [ 0.00 ,  -0.1 ,  0.000 ,  0.0 ,  1.59 ]
+    - [ 0.24 ,  -0.1 ,  0.195 ,  2.31 ,  3.1900000000000004 ]
+    - [ 0.72 ,  -0.1 ,  0.555 ,  3.9099999999999997 ,  4.79 ]
+    - [ 1.20 ,  -0.1 ,  0.880 ,  5.51 ,  6.39 ]
+    - [ 1.40 ,  -0.1 ,  0.880 ,  7.109999999999999 ,  7.989999999999999 ]
+    - [ 1.50 ,  -0.1 ,  0.880 ,  8.709999999999999 ,  100.0 ]
+  leftStepsParameters:
+    - [ 0.00 ,   0.1 ,  0.000 ,  0.0 ,  2.3900000000000006 ]
+    - [ 0.48 ,   0.1 ,  0.375 ,  3.11 ,  3.99 ]
+    - [ 0.96 ,   0.1 ,  0.735 ,  4.71 ,  5.59 ]
+    - [ 1.20 ,   0.1 ,  0.880 ,  6.31 ,  7.1899999999999995 ]
+    - [ 1.30 ,   0.1 ,  0.880 ,  7.909999999999999 ,  8.79 ]
+    - [ 1.50 ,   0.1 ,  0.880 ,  9.51 ,  100.0 ]
+
+  #########################################
+  #  Stairs LIRMM both feet on each step  #
+  #########################################
+  #rightStepsParameters:
+  #  - [ 0.00 ,  -0.1 ,  0.000 ,  0.0 ,  1.59 ]
+  #  - [ 0.30 ,  -0.1 ,  0.140 ,  2.31 ,  3.1900000000000004 ]
+  #  - [ 0.60 ,  -0.1 ,  0.300 ,  3.9099999999999997 ,  4.79 ]
+  #  - [ 0.90 ,  -0.1 ,  0.460 ,  5.51 ,  6.39 ]
+  #  - [ 1.20 ,  -0.1 ,  0.620 ,  7.109999999999999 ,  7.989999999999999 ]
+  #  - [ 1.50 ,  -0.1 ,  0.840 ,  8.709999999999999 ,  100.0 ]
+  #leftStepsParameters:
+  #  - [ 0.00 ,   0.1 ,  0.000 ,  0.0 ,  2.3900000000000006 ]
+  #  - [ 0.30 ,   0.1 ,  0.140 ,  3.11 ,  3.99 ]
+  #  - [ 0.60 ,   0.1 ,  0.300 ,  4.71 ,  5.59 ]
+  #  - [ 0.90 ,   0.1 ,  0.460 ,  6.31 ,  7.1899999999999995 ]
+  #  - [ 1.20 ,   0.1 ,  0.620 ,  7.909999999999999 ,  8.79 ]
+  #  - [ 1.50 ,   0.1 ,  0.840 ,  9.51 ,  100.0 ]
+
+  ####################################
+  #  Stairs LIRMM one foot per step  #
+  ####################################
+  #rightStepsParameters:
+  #  - [ 0.00 ,  -0.1 ,  0.000 ,  0.0 ,  1.59 ]
+  #  - [ 0.30 ,  -0.1 ,  0.140 ,  2.31 ,  3.1900000000000004 ]
+  #  - [ 0.90 ,  -0.1 ,  0.460 ,  3.9099999999999997 ,  4.79 ]
+  #  - [ 1.50 ,  -0.1 ,  0.840 ,  5.51 ,  6.39 ]
+  #  - [ 1.60 ,  -0.1 ,  0.840 ,  7.109999999999999 ,  7.989999999999999 ]
+  #  - [ 1.80 ,  -0.1 ,  0.840 ,  8.709999999999999 ,  100.0 ]
+  #leftStepsParameters:
+  #  - [ 0.00 ,   0.1 ,  0.000 ,  0.0 ,  2.3900000000000006 ]
+  #  - [ 0.60 ,   0.1 ,  0.300 ,  3.11 ,  3.99 ]
+  #  - [ 1.20 ,   0.1 ,  0.620 ,  4.71 ,  5.59 ]
+  #  - [ 1.50 ,   0.1 ,  0.840 ,  6.31 ,  7.1899999999999995 ]
+  #  - [ 1.70 ,   0.1 ,  0.840 ,  7.909999999999999 ,  8.79 ]
+  #  - [ 1.80 ,   0.1 ,  0.840 ,  9.51 ,  100.0 ]

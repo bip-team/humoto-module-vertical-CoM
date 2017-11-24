@@ -18,23 +18,24 @@
 void setupHierarchy_v0(humoto::OptimizationProblem& opt_problem,
                        const humoto::wpg05::ProblemParameters& params)
 {
-    // tasks, which are used in the control problem
-    humoto::TaskSharedPointer task_cop_bounds(
-        new humoto::wpg05::TaskCoPBounds(params.gainTaskCoPBounds_));
-    humoto::TaskSharedPointer task_cop_pos_ref(
-        new humoto::wpg05::TaskCoPPosRef(params.gainTaskCoPPosRef_));
-    humoto::TaskSharedPointer task_com_velocity(
-        new humoto::wpg05::TaskCoMVelocity(params.gainTaskVelocity_));
-    humoto::TaskSharedPointer task_min_jerk(new humoto::TaskZeroVariables(params.gainTaskMinJerk_));
+  // Tasks, which are used in the control problem
+  humoto::TaskSharedPointer task_cop_bounds(
+      new humoto::wpg05::TaskCoPBounds(params.gainTaskCoPBounds_));
+  humoto::TaskSharedPointer task_cop_pos_ref(
+      new humoto::wpg05::TaskCoPPosRef(params.gainTaskCoPPosRef_));
+  humoto::TaskSharedPointer task_com_velocity(
+      new humoto::wpg05::TaskCoMVelocity(params.gainTaskVelocity_));
+  humoto::TaskSharedPointer task_min_jerk(
+      new humoto::TaskZeroVariables(params.gainTaskMinJerk_));
 
-    // reset the optimization problem
-    opt_problem.reset(2);
+  // Reset the optimization problem
+  opt_problem.reset(2);
 
-    // push tasks into the stack/hierarchy
-    opt_problem.pushTask(task_cop_bounds, 0);
-    opt_problem.pushTask(task_cop_pos_ref, 1);
-    opt_problem.pushTask(task_com_velocity, 1);
-    opt_problem.pushTask(task_min_jerk, 1);
+  // Push tasks into the stack/hierarchy
+  opt_problem.pushTask(task_cop_bounds, 0);
+  opt_problem.pushTask(task_cop_pos_ref, 1);
+  opt_problem.pushTask(task_com_velocity, 1);
+  opt_problem.pushTask(task_min_jerk, 1);
 }
 
 /// @brief Setup the hierarchy of tasks of the problem for a walk up and down stairs with vertical
@@ -45,27 +46,34 @@ void setupHierarchy_v0(humoto::OptimizationProblem& opt_problem,
 void setupHierarchy_v1(humoto::OptimizationProblem& opt_problem,
                        const humoto::wpg05::ProblemParameters& params)
 {
-    // tasks, which are used in the control problem
-    humoto::TaskSharedPointer task_cop_bounds(
-        new humoto::wpg05::TaskCoPBoundsVerticalMotion(params.gainTaskCoPBounds_));
-    humoto::TaskSharedPointer task_com_height(
-        new humoto::wpg05::TaskCoMHeight(params.gainTaskCoMHeight_));
-    humoto::TaskSharedPointer task_cop_pos_ref(
-        new humoto::wpg05::TaskCoPPosRef(params.gainTaskCoPPosRef_));
-    humoto::TaskSharedPointer task_com_velocity(
-        new humoto::wpg05::TaskCoMVelocity(params.gainTaskVelocity_));
-    humoto::TaskSharedPointer task_min_jerk(new humoto::TaskZeroVariables(params.gainTaskMinJerk_));
-    humoto::TaskSharedPointer task_kinematics_rectangle(
-        new humoto::wpg05::TaskKinematicsRectangle(params.gainTaskKinematicsRectangle_));
+  // Tasks, which are used in the control problem
+  // COST FUNCTIONS
+  humoto::TaskSharedPointer task_com_height(
+      new humoto::wpg05::TaskCoMHeight(params.gainTaskCoMHeight_));
+  humoto::TaskSharedPointer task_cop_pos_ref(
+      new humoto::wpg05::TaskCoPPosRef(params.gainTaskCoPPosRef_));
+  humoto::TaskSharedPointer task_com_velocity(
+      new humoto::wpg05::TaskCoMVelocity(params.gainTaskVelocity_));
+  humoto::TaskSharedPointer task_minimize_jerk(
+      new humoto::TaskZeroVariables(params.gainTaskMinJerk_));
+  // CONSTRAINTS
+  humoto::TaskSharedPointer task_cop_bounds(
+      new humoto::wpg05::TaskCoPBoundsVerticalMotion(
+          params.gainTaskCoPBounds_));
+  humoto::TaskSharedPointer task_kinematics_polygon(
+      new humoto::wpg05::TaskKinematicsPolygon(
+          params.gainTaskKinematicsPolygon_));
 
-    // reset the optimization problem
-    opt_problem.reset(2);
+  // reset the optimization problem
+  opt_problem.reset(2);
 
-    // push tasks into the stack/hierarchy
-    opt_problem.pushTask(task_cop_bounds, 0);
-    opt_problem.pushTask(task_kinematics_rectangle, 0);
-    opt_problem.pushTask(task_com_height, 1);
-    opt_problem.pushTask(task_cop_pos_ref, 1);
-    opt_problem.pushTask(task_com_velocity, 1);
-    opt_problem.pushTask(task_min_jerk, 1);
+  // Push tasks into the stack/hierarchy
+  // CONSTRAINTS
+  opt_problem.pushTask(task_cop_bounds, 0);
+  opt_problem.pushTask(task_kinematics_polygon, 0);
+  // COST FUNCTIONS
+  opt_problem.pushTask(task_com_height, 1);
+  opt_problem.pushTask(task_cop_pos_ref, 1);
+  opt_problem.pushTask(task_com_velocity, 1);
+  opt_problem.pushTask(task_minimize_jerk, 1);
 }

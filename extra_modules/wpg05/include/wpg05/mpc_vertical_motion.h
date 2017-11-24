@@ -36,9 +36,9 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     Eigen::Matrix3d Ablock_;
 
     // Matrices to update the state
-    // x_{k_1} = A*x_k + B*u_k
+    // x_{k+1} = A*x_k + B*u_k
     // y_{k} = C*x_k
-    // y_{k_1} = D*x_k + E*u_k
+    // y_{k+1} = D*x_k + E*u_k
     etools::Matrix9 A_;
     etools::Matrix9x3 B_;
     etools::Matrix6x9 C_;
@@ -59,13 +59,25 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     const ProblemParameters& pb_params_;
     /// @brief Matrix to select velocities out of the state vector
     etools::SelectionMatrix velocity_selector_;
+
     /// @brief Plan for the steps to take (predefined)
     StepPlan step_plan_;
+    /// @brief Trajectory of the right foot
+    FootTraj rightFootTraj_;
+    /// @brief Trajectory of the left foot
+    FootTraj leftFootTraj_;
+
     /// @brief Current step index
     size_t current_step_index_;
+
     /// @brief logger
     Logger logger_;
 
+    /// @brief Computes the building block for A
+    /// Ablock = [1, T, T^2/2]
+    ///          [0, 1, T    ]
+    ///          [0, 0, 1    ]
+    /// @return
     Eigen::Matrix3d computeAblock()
     {
         Ablock_.setIdentity();
@@ -74,6 +86,12 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         Ablock_(1, 2) = t_;
         return Ablock_;
     }
+
+    /// @brief Computes the building block for B
+    /// Bblock = [T^3/6]
+    ///          [T^2/2]
+    ///          [T    ]
+    /// @return
     Eigen::Vector3d computeBblock()
     {
         Bblock_(0) = t_ * t_ * t_ / 6.0;
@@ -83,8 +101,11 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     }
 
     /// @brief Computes the A matrix
-    /// x_{k_1} = A*x_k + B*u_k
+    /// x_{k+1} = A*x_k + B*u_k
     ///
+    /// A = [Ablock, 0, 0]
+    ///     [0, Ablock, 0]
+    ///     [0, 0, Ablock]
     /// @return The A matrix
     etools::Matrix9 computeA()
     {
@@ -96,8 +117,11 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     }
 
     /// @brief Computes the B matrix
-    /// x_{k_1} = A*x_k + B*u_k
+    /// x_{k+1} = A*x_k + B*u_k
     ///
+    /// B = [Bblock, 0, 0]
+    ///     [0, Bblock, 0]
+    ///     [0, 0, Bblock]
     /// @return The B matrix
     etools::Matrix9x3 computeB()
     {
@@ -130,7 +154,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     }
 
     /// @brief Computes the D matrix
-    /// y_{k_1} = D*x_k + E*u_k
+    /// y_{k+1} = D*x_k + E*u_k
     ///
     /// @return The D matrix
     etools::Matrix6x9 computeD()
@@ -153,35 +177,39 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @brief Main constructor of the MPC problem, based on the problems parameters
     ///
     /// @param pbParam problems parameters
-    MPCVerticalMotion(const ProblemParameters& pbParam)
-        : pb_params_(pbParam),
-          velocity_selector_(3, 1),
-          step_plan_(pb_params_.leftStepsParameters_, pb_params_.rightStepsParameters_,
-                     pb_params_.t_),
-          current_step_index_(0),
-          logger_(pb_params_.t_, step_plan_, pb_params_)
-    {
-        t_ = pb_params_.t_;
-        zeta_ = pb_params_.zetaZero_;
-        zetaMin_ = zeta_ - pb_params_.zetaSpan_ / 2;
-        zetaMax_ = zeta_ + pb_params_.zetaSpan_ / 2;
-        // compute all the A, B, D, E matrices
-        computeAblock();
-        computeBblock();
-        computeA();
-        computeB();
-        computeC();
-        computeD();
-        computeE();
-        // condense the A, B, D, E matrices to get the Ux, Uu, Ox and Ou matrices
-        condenseTimeInvariant(Ux_, Uu_, pb_params_.n_, A_, B_);
-        condenseOutput(Ox_, Ou_, D_, E_, Ux_, Uu_);
+    MPCVerticalMotion(const ProblemParameters &pbParam)
+        : pb_params_(pbParam), velocity_selector_(3, 1),
+          step_plan_(pb_params_.leftStepsParameters_,
+                     pb_params_.rightStepsParameters_, pb_params_.t_,
+                     pb_params_.stepHeight_, pb_params_.footXwidth_,
+                     pb_params_.footYwidth_),
+          rightFootTraj_(step_plan_.rightFoot()),
+          leftFootTraj_(step_plan_.leftFoot()), current_step_index_(0),
+          logger_(pb_params_.t_, step_plan_, rightFootTraj_, leftFootTraj_,
+                  pb_params_) {
+      std::cout << "Ctor MPCVerticalMotion" << std::endl;
+      t_ = pb_params_.t_;
+      zeta_ = pb_params_.zetaZero_;
+      zetaMin_ = zeta_ - pb_params_.zetaSpan_ / 2;
+      zetaMax_ = zeta_ + pb_params_.zetaSpan_ / 2;
+      // compute all the A, B, D, E matrices
+      computeAblock();
+      computeBblock();
+      computeA();
+      computeB();
+      computeC();
+      computeD();
+      computeE();
+      // condense the A, B, D, E matrices to get the Ux, Uu, Ox and Ou matrices
+      condenseTimeInvariant(Ux_, Uu_, pb_params_.nHorizon_, A_, B_);
+      condenseOutput(Ox_, Ou_, D_, E_, Ux_, Uu_);
     }
 
     /// @brief Getter for pbParams
     const ProblemParameters& pbParams() const { return pb_params_; }
     /// @brief Getter for velocity_selector
     const etools::SelectionMatrix& velocity_selector() const { return velocity_selector_; }
+
     /// @brief Getter for Uu
     const Eigen::MatrixXd& Uu() const { return Uu_; }
     /// @brief Getter for Ux
@@ -190,12 +218,19 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     const Eigen::MatrixXd& Ou() const { return Ou_; }
     /// @brief Getter for Ox
     const Eigen::MatrixXd& Ox() const { return Ox_; }
+
     /// @brief Getter for currentState
     const etools::Vector9& currentState() const { return current_state_; }
     /// @brief Getter for logger
     const Logger& logger() const { return logger_; }
+    Logger &logger() { return logger_; }
+
     /// @brief Getter for stepPlan
     const StepPlan& stepPlan() const { return step_plan_; }
+    /// @brief Getter for rightFootTraj
+    const FootTraj &rightFootTraj() const { return rightFootTraj_; }
+    /// @brief Getter for leftFootTraj
+    const FootTraj &leftFootTraj() const { return leftFootTraj_; }
 
     /// @brief Getter for zetaMin
     const double& zetaMin() const { return zetaMin_; }
@@ -214,7 +249,8 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     {
         sol_structure_.reset();
         // Add a variable of size 3*n called JERK_VARIABLE_ID to the structure of the solution
-        sol_structure_.addSolutionPart("JERK_VARIABLE_ID", problem_parameters.n_ * 3);
+        sol_structure_.addSolutionPart("JERK_VARIABLE_ID",
+                                       problem_parameters.nHorizon_ * 3);
 
         current_state_ = model.state_.getStateVector();
 
@@ -258,7 +294,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     }
 
     /// @brief Getter for PreviewHorizonLength
-    size_t getPreviewHorizonLength() const { return pb_params_.n_; }
+    size_t getPreviewHorizonLength() const { return pb_params_.nHorizon_; }
     /// @brief Getter for currentStepIndex
     size_t currentStepIndex() const { return current_step_index_; }
 
