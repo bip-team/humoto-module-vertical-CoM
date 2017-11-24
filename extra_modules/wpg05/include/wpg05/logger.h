@@ -209,6 +209,7 @@ class HUMOTO_LOCAL Logger
         logFile << "plt.plot(time, trajRFootZ, 'r', label='RFootZ')\n";
         logFile << "plt.plot(time, trajLFootZ, 'b', label='LFootZ')\n";
         logFile << "plt.legend()\n";
+        logFile << "plt.savefig(\"latest_test/trajFoot.png\")\n";
         logFile << "plt.show()\n";
     }
     void plotXYZ(std::ofstream &logFile) const
@@ -245,6 +246,7 @@ class HUMOTO_LOCAL Logger
         logFile << "ax2.legend(loc='upper right', shadow=True)\n";
         logFile << "ax3.legend(loc='upper right', shadow=True)\n";
         logFile << "plt.axis('auto')\n";
+        logFile << "plt.savefig(\"latest_test/xyz.png\")\n";
         logFile << "plt.show()\n";
     }
     void plot3Dtraj(std::ofstream &logFile) const
@@ -272,6 +274,7 @@ class HUMOTO_LOCAL Logger
         logFile << "ax.plot(x, y, highestFeasibleZ, '--g', label='CoM')\n";
         logFile << "ax.plot(xCoP, yCoP, zCoP, 'y', label='CoP')\n";
         logFile << "ax.legend()\n";
+        logFile << "plt.savefig(\"latest_test/3D.png\")\n";
         logFile << "plt.show()\n";
     }
 
@@ -289,6 +292,7 @@ class HUMOTO_LOCAL Logger
         logFile << "ax1.legend(loc='lower left', shadow=False)\n";
         logFile << "ax2.legend(loc='lower left', shadow=False)\n";
         logFile << "ax3.legend(loc='lower left', shadow=False)\n";
+        logFile << "plt.savefig(\"latest_test/projections.png\")\n";
         logFile << "plt.show()\n";
     }
 
@@ -301,6 +305,9 @@ class HUMOTO_LOCAL Logger
         logFile << "from mpl_toolkits.mplot3d import Axes3D\n";
         logFile << "import numpy as np\n";
         logFile << "import matplotlib.pyplot as plt\n";
+        logFile << "import os\n";
+        logFile << "if not os.path.isdir('latest_test'):\n";
+        logFile << "    os.mkdir('latest_test')\n";
 
         logEverything(logFile);
         plotTrajectoryFoot(logFile);
