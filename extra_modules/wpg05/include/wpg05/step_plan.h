@@ -180,8 +180,8 @@ class HUMOTO_LOCAL StepPlan
     /// straight line between
     /// @param footXwidth Width of foot along the X direction (forward)
     /// @param footYwidth Width of foot along the Y direction (sideway)
-    StepPlan(const std::vector<std::vector<double>> &leftStepsParameters,
-             const std::vector<std::vector<double>> &rightStepsParameters,
+    StepPlan(const std::vector<std::vector<double> > &leftStepsParameters,
+             const std::vector<std::vector<double> > &rightStepsParameters,
              double T, double hStep = 0.4, double footXwidth = 0.2,
              double footYwidth = 0.1);
 
@@ -275,8 +275,8 @@ class HUMOTO_LOCAL StepPlan
     double stepYWidth_;
 };
 
-StepPlan::StepPlan(const std::vector<std::vector<double>> &leftStepsParameters,
-                   const std::vector<std::vector<double>> &rightStepsParameters,
+StepPlan::StepPlan(const std::vector<std::vector<double> > &leftStepsParameters,
+                   const std::vector<std::vector<double> > &rightStepsParameters,
                    double T, double hStep, double footXwidth, double footYwidth)
     : T_(T), heightSteps_(hStep), stepXWidth_(footXwidth),
       stepYWidth_(footYwidth) {

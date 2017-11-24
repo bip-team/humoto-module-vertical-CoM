@@ -15,28 +15,28 @@
 ///
 /// @param opt_problem The optimization problem on which tasks will be added
 /// @param params The problem's parameters (for the tasks gains)
-void setupHierarchy_v0(humoto::OptimizationProblem& opt_problem,
-                       const humoto::wpg05::ProblemParameters& params)
-{
-  // Tasks, which are used in the control problem
-  humoto::TaskSharedPointer task_cop_bounds(
-      new humoto::wpg05::TaskCoPBounds(params.gainTaskCoPBounds_));
-  humoto::TaskSharedPointer task_cop_pos_ref(
-      new humoto::wpg05::TaskCoPPosRef(params.gainTaskCoPPosRef_));
-  humoto::TaskSharedPointer task_com_velocity(
-      new humoto::wpg05::TaskCoMVelocity(params.gainTaskVelocity_));
-  humoto::TaskSharedPointer task_min_jerk(
-      new humoto::TaskZeroVariables(params.gainTaskMinJerk_));
-
-  // Reset the optimization problem
-  opt_problem.reset(2);
-
-  // Push tasks into the stack/hierarchy
-  opt_problem.pushTask(task_cop_bounds, 0);
-  opt_problem.pushTask(task_cop_pos_ref, 1);
-  opt_problem.pushTask(task_com_velocity, 1);
-  opt_problem.pushTask(task_min_jerk, 1);
-}
+//void setupHierarchy_v0(humoto::OptimizationProblem& opt_problem,
+//                       const humoto::wpg05::ProblemParameters& params)
+//{
+//  // Tasks, which are used in the control problem
+//  humoto::TaskSharedPointer task_cop_bounds(
+//      new humoto::wpg05::TaskCoPBounds(params.gainTaskCoPBounds_));
+//  humoto::TaskSharedPointer task_cop_pos_ref(
+//      new humoto::wpg05::TaskCoPPosRef(params.gainTaskCoPPosRef_));
+//  humoto::TaskSharedPointer task_com_velocity(
+//      new humoto::wpg05::TaskCoMVelocity(params.gainTaskVelocity_));
+//  humoto::TaskSharedPointer task_min_jerk(
+//      new humoto::TaskZeroVariables(params.gainTaskMinJerk_));
+//
+//  // Reset the optimization problem
+//  opt_problem.reset(2);
+//
+//  // Push tasks into the stack/hierarchy
+//  opt_problem.pushTask(task_cop_bounds, 0);
+//  opt_problem.pushTask(task_cop_pos_ref, 1);
+//  opt_problem.pushTask(task_com_velocity, 1);
+//  opt_problem.pushTask(task_min_jerk, 1);
+//}
 
 /// @brief Setup the hierarchy of tasks of the problem for a walk up and down stairs with vertical
 /// motion of the CoM with predefined steps
