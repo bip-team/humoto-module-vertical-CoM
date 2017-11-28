@@ -57,51 +57,58 @@ class HUMOTO_LOCAL Logger
     /// @param control control
     void addStateAndControl(const etools::Vector9 &state, const etools::Vector3 &control)
     {
-        addStateAndControl(state, control, pbParams_.zetaZero_);
+        double zeta = pbParams_.zetaZero_;
+        double zetaSpan = pbParams_.zetaSpan_;
+        double zetaMin = zeta - zetaSpan / 2;
+        double zetaMax = zeta + zetaSpan / 2;
+        addStateAndControl(state, control, zeta, zetaMin, zetaMax);
     }
 
     void addControl(const etools::Vector3 &control) { jerksCoM_.push_back(control); }
 
     void addState(const etools::Vector3 &position, const etools::Vector3 &velocity,
-                  const etools::Vector3 &acceleration, const double &zeta)
+                  const etools::Vector3 &acceleration, double zeta)
+    {
+        double zetaMin = zeta - pbParams_.zetaSpan_ / 2;
+        double zetaMax = zeta + pbParams_.zetaSpan_ / 2;
+        addState(position, velocity, acceleration, zeta, zetaMin, zetaMax);
+    }
+
+    void addState(const etools::Vector3 &position, const etools::Vector3 &velocity,
+                  const etools::Vector3 &acceleration, double zeta, double zetaMin, double zetaMax)
     {
         positionsCoM_.push_back(position);
         velocitiesCoM_.push_back(velocity);
         accelerationsCoM_.push_back(acceleration);
 
-        double zetaMin = zeta - pbParams_.zetaSpan_ / 2;
-        double zetaMax = zeta + pbParams_.zetaSpan_ / 2;
+        //double zetaMin = zeta - pbParams_.zetaSpan_ / 2;
+        //double zetaMax = zeta + pbParams_.zetaSpan_ / 2;
 
-        Eigen::Vector3d cop, copMin, copMax;
-        copMin(0) = position(0) - zetaMin * acceleration(0);
-        copMin(1) = position(1) - zetaMin * acceleration(1);
-        copMin(2) = position(2) - zetaMin * (acceleration(2) + gravity_);
-        cop(0) = position(0) - zeta * acceleration(0);
-        cop(1) = position(1) - zeta * acceleration(1);
-        cop(2) = position(2) - zeta * (acceleration(2) + gravity_);
-        copMax(0) = position(0) - zetaMax * acceleration(0);
-        copMax(1) = position(1) - zetaMax * acceleration(1);
-        copMax(2) = position(2) - zetaMax * (acceleration(2) + gravity_);
+        Eigen::Vector3d cop, copMin, copMax, copFloor;
+        copMin = position - zetaMin * acceleration;
+        cop = position - zeta * acceleration;
+        copMax = position - zetaMax * acceleration;
+
         positionsCoPMin_.push_back(copMin);
         positionsCoP_.push_back(cop);
         positionsCoPMax_.push_back(copMax);
     }
 
     void addStateAndControl(const ModelState& state, const etools::Vector3 &control,
-                            const double &zeta)
+                            double zeta, double zetaMin, double zetaMax)
     {
-        addState(state.position(), state.velocity(), state.acceleration(), zeta);
+        addState(state.position(), state.velocity(), state.acceleration(), zeta, zetaMin, zetaMax);
         addControl(control);
     }
 
     void addStateAndControl(const etools::Vector9 &state, const etools::Vector3 &control,
-                            const double &zeta)
+                            double zeta, double zetaMin, double zetaMax)
     {
         Eigen::Vector3d position, velocity, acceleration, cop, copMin, copMax;
         position << state(0), state(3), state(6);
         velocity << state(1), state(4), state(7);
         acceleration << state(2), state(5), state(8);
-        addState(position, velocity, acceleration, zeta);
+        addState(position, velocity, acceleration, zeta, zetaMin, zetaMax);
         addControl(control);
     }
 
@@ -150,6 +157,7 @@ class HUMOTO_LOCAL Logger
         Eigen::IOFormat stepFmt(4, 0, ", ", ", ", "[", "]");
         logFile << "t = np.arange(0.," << (double)size() * (double)timeStep_ << ", " << timeStep_
                 << ")\n\n";
+        logFile << "iter = np.arange(0," << (double)size() << ")\n\n";
 
         Eigen::MatrixXd positions(toMatrix(positionsCoM_));
         Eigen::MatrixXd positionsCoPMin(toMatrix(positionsCoPMin_));
@@ -180,6 +188,7 @@ class HUMOTO_LOCAL Logger
                 << ")\n";
         logFile << "zCoPMax = np.array(" << positionsCoPMax.col(2).transpose().format(cleanFmt)
                 << ")\n";
+        logFile << "pz = np.array(" << stepPlan_.z().transpose().format(cleanFmt) << ")\n";
         logFile << "xMin = np.array(" << xMin_.transpose().format(cleanFmt) << ")\n";
         logFile << "yMin = np.array(" << yMin_.transpose().format(cleanFmt) << ")\n";
         logFile << "zMin = np.array(" << zMin_.transpose().format(cleanFmt) << ")\n";
@@ -239,26 +248,26 @@ class HUMOTO_LOCAL Logger
          *  PLOT COM AND COP TRAJECTORIES  *
          ***********************************/
         logFile << "f, (ax1, ax2, ax3) = plt.subplots(3, sharex=False, sharey=False)\n";
-        logFile << "ax1.plot(t, x[0:len(t)],       'g--' , linewidth=0.5, label='xCoM')\n";
-        logFile << "ax1.plot(t, xMin[0:len(t)],    'b--' , linewidth=0.5, label='xCoMMin')\n";
-        logFile << "ax1.plot(t, xMax[0:len(t)],    'r--' , linewidth=0.5, label='xCoMMax')\n";
-        logFile << "ax1.plot(t, xCoPMin[0:len(t)], 'b'   , linewidth=0.5, label='xCoPMin')\n";
-        logFile << "ax1.plot(t, xCoP[0:len(t)],    'g'   , linewidth=0.5, label='xCoP')\n";
-        logFile << "ax1.plot(t, xCoPMax[0:len(t)], 'r'   , linewidth=0.5, label='xCoPMax')\n";
+        logFile << "ax1.plot(iter, x[0:len(iter)],       'g--' , linewidth=0.5, label='xCoM')\n";
+        logFile << "ax1.plot(iter, xMin[0:len(iter)],    'b--' , linewidth=0.5, label='xCoMMin')\n";
+        logFile << "ax1.plot(iter, xMax[0:len(iter)],    'r--' , linewidth=0.5, label='xCoMMax')\n";
+        logFile << "ax1.plot(iter, xCoPMin[0:len(iter)], 'b'   , linewidth=0.5, label='xCoPMin')\n";
+        logFile << "ax1.plot(iter, xCoP[0:len(iter)],    'g'   , linewidth=0.5, label='xCoP')\n";
+        logFile << "ax1.plot(iter, xCoPMax[0:len(iter)], 'r'   , linewidth=0.5, label='xCoPMax')\n";
 
-        logFile << "ax2.plot(t, y[0:len(t)],       'g--' , linewidth=0.5 , label='yCoM')\n";
-        logFile << "ax2.plot(t, yMin[0:len(t)],    'b--' , linewidth=0.5 , label='yCoMMin')\n";
-        logFile << "ax2.plot(t, yMax[0:len(t)],    'r--' , linewidth=0.5 , label='yCoMMax')\n";
-        logFile << "ax2.plot(t, yCoPMin[0:len(t)], 'b'   , linewidth=0.5 , label='yCoPMin')\n";
-        logFile << "ax2.plot(t, yCoP[0:len(t)],    'g'   , linewidth=0.5 , label='yCoP')\n";
-        logFile << "ax2.plot(t, yCoPMax[0:len(t)], 'r'   , linewidth=0.5 , label='yCoPMax')\n";
+        logFile << "ax2.plot(iter, y[0:len(iter)],       'g--' , linewidth=0.5 , label='yCoM')\n";
+        logFile << "ax2.plot(iter, yMin[0:len(iter)],    'b--' , linewidth=0.5 , label='yCoMMin')\n";
+        logFile << "ax2.plot(iter, yMax[0:len(iter)],    'r--' , linewidth=0.5 , label='yCoMMax')\n";
+        logFile << "ax2.plot(iter, yCoPMin[0:len(iter)], 'b'   , linewidth=0.5 , label='yCoPMin')\n";
+        logFile << "ax2.plot(iter, yCoP[0:len(iter)],    'g'   , linewidth=0.5 , label='yCoP')\n";
+        logFile << "ax2.plot(iter, yCoPMax[0:len(iter)], 'r'   , linewidth=0.5 , label='yCoPMax')\n";
 
-        logFile << "ax3.plot(t, z[0:len(t)],       'g--' , linewidth=0.5 , label='zCoM')\n";
-        logFile << "ax3.plot(t, zMin[0:len(t)],    'b--' , linewidth=0.5 , label='zCoMMin')\n";
-        logFile << "ax3.plot(t, zMax[0:len(t)],    'r--' , linewidth=0.5 , label='zCoMMax')\n";
-        logFile << "ax3.plot(t, zCoPMin[0:len(t)], 'b'   , linewidth=0.5 , label='zCoPMin')\n";
-        logFile << "ax3.plot(t, zCoP[0:len(t)],    'g'   , linewidth=0.5 , label='zCoP')\n";
-        logFile << "ax3.plot(t, zCoPMax[0:len(t)], 'r'   , linewidth=0.5 , label='zCoPMax')\n";
+        logFile << "ax3.plot(iter, z[0:len(iter)],       'g--' , linewidth=0.5 , label='zCoM')\n";
+        logFile << "ax3.plot(iter, zMin[0:len(iter)],    'b--' , linewidth=0.5 , label='zCoMMin')\n";
+        logFile << "ax3.plot(iter, zMax[0:len(iter)],    'r--' , linewidth=0.5 , label='zCoMMax')\n";
+        logFile << "ax3.plot(iter, zCoPMin[0:len(iter)], 'b'   , linewidth=0.5 , label='zCoPMin')\n";
+        logFile << "ax3.plot(iter, zCoP[0:len(iter)],    'g'   , linewidth=0.5 , label='zCoP')\n";
+        logFile << "ax3.plot(iter, zCoPMax[0:len(iter)], 'r'   , linewidth=0.5 , label='zCoPMax')\n";
 
         logFile << "ax1.set_xlabel('Time (s)')\n";
         logFile << "ax2.set_xlabel('Time (s)')\n";
@@ -295,8 +304,8 @@ class HUMOTO_LOCAL Logger
         logFile << "ax.plot(trajLFootX, trajLFootY, trajLFootZ, 'r', linewidth=0.5, label='Left foot')\n";
         logFile << "ax.plot(trajRFootX, trajRFootY, trajRFootZ, 'b', linewidth=0.5, label='Right foot')\n";
         logFile << "ax.plot(x, y, z, 'g', linewidth=0.5, label='CoM')\n";
-        logFile << "ax.plot(x, y, highestFeasibleZ, '--g', linewidth=0.5, label='CoM')\n";
-        logFile << "ax.plot(xCoP, yCoP, zCoP, 'y', linewidth=0.5, label='CoP')\n";
+        logFile << "ax.plot(x, y, highestFeasibleZ, '--g', linewidth=0.5, label='CoM max')\n";
+        logFile << "ax.plot(xCoP, yCoP, pz[0:len(xCoP)], 'y', linewidth=0.5, label='CoP')\n";
         logFile << "ax.legend()\n";
         logFile << "plt.savefig('latest_test/3D.pdf', format='pdf', dpi=1000)\n";
         logFile << "plt.show()\n";
@@ -344,12 +353,17 @@ class HUMOTO_LOCAL Logger
 
   private:
     std::vector<Eigen::Vector3d> positionsCoM_;
-    std::vector<Eigen::Vector3d> positionsCoPMin_;
-    std::vector<Eigen::Vector3d> positionsCoP_;
-    std::vector<Eigen::Vector3d> positionsCoPMax_;
     std::vector<Eigen::Vector3d> velocitiesCoM_;
     std::vector<Eigen::Vector3d> accelerationsCoM_;
     std::vector<Eigen::Vector3d> jerksCoM_;
+
+    /// @brief CoPMin = position - zetaMin * acceleration
+    std::vector<Eigen::Vector3d> positionsCoPMin_;
+    /// @brief CoP = position - zeta * acceleration
+    std::vector<Eigen::Vector3d> positionsCoP_;
+    /// @brief CoPMax = position - zetaMax * acceleration
+    std::vector<Eigen::Vector3d> positionsCoPMax_;
+
     mutable Eigen::VectorXd highestFeasibleZ_;
     Eigen::VectorXd xMin_;
     Eigen::VectorXd xMax_;

@@ -67,10 +67,8 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
         Eigen::VectorXd &u = getUpperBounds();
 
         // Setup the bounds along the preview horizon
-        if (zBoundsHigh_.size() != 6 * (long)mpc.getPreviewHorizonLength())
-            zBoundsHigh_.resize(6 * mpc.getPreviewHorizonLength());
-        if (zBoundsLow_.size() != 6 * (long)mpc.getPreviewHorizonLength())
-            zBoundsLow_.resize(6 * mpc.getPreviewHorizonLength());
+        zBoundsHigh_.resize(6 * mpc.getPreviewHorizonLength());
+        zBoundsLow_.resize(6 * mpc.getPreviewHorizonLength());
 
         for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
         {

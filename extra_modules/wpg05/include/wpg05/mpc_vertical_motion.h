@@ -277,14 +277,16 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         current_state_ = model.state_.getStateVector();
 
         etools::Vector9 newState;
-        newState = A_ * current_state_ + B_ * solution.x_.segment(0, 3);
+        Eigen::Vector3d control = solution.x_.segment(0,3);
+        newState = A_ * current_state_ + B_ * control;
         state.updateFromVector(newState);
 
-        zeta_ = (state.position_(2) - step_plan_.z()(currentStepIndex())) /
+        // Add the new state and control to the logger
+        logger_.addStateAndControl(state, solution.x_.segment(0, 3), zeta_, zetaMin_, zetaMax_);
+
+        zeta_ = (state.position_(2) - step_plan_.z()(currentStepIndex() + 1)) /
                 (state.acceleration_(2) + pb_params_.g_);
 
-        // Add the new state and control to the logger
-        logger_.addStateAndControl(newState, solution.x_.segment(0, 3), zeta_);
 
         std::cout << "currentStepIndex: " << current_step_index_ << std::endl;
         current_step_index_++;
