@@ -227,10 +227,10 @@ class HUMOTO_LOCAL Logger
         /**************************
          *  PLOT FOOT TRAJECTORY  *
          **************************/
-        logFile << "plt.plot(time, trajRFootZ, 'r', label='RFootZ')\n";
-        logFile << "plt.plot(time, trajLFootZ, 'b', label='LFootZ')\n";
+        logFile << "plt.plot(time, trajRFootZ, 'r', linewidth=0.5, label='RFootZ')\n";
+        logFile << "plt.plot(time, trajLFootZ, 'b', linewidth=0.5, label='LFootZ')\n";
         logFile << "plt.legend()\n";
-        logFile << "plt.savefig(\"latest_test/trajFoot.png\")\n";
+        logFile << "plt.savefig('latest_test/trajFoot.pdf', format='pdf', dpi=1000)\n";
         logFile << "plt.show()\n";
     }
     void plotXYZ(std::ofstream &logFile) const
@@ -239,24 +239,27 @@ class HUMOTO_LOCAL Logger
          *  PLOT COM AND COP TRAJECTORIES  *
          ***********************************/
         logFile << "f, (ax1, ax2, ax3) = plt.subplots(3, sharex=False, sharey=False)\n";
-        logFile << "ax1.plot(t, x[0:len(t)], 'r-', label='xCoM')\n";
-        logFile << "ax2.plot(t, y[0:len(t)], 'b-', label='yCoM')\n";
-        logFile << "ax3.plot(t, z[0:len(t)], 'g-', label='zCoM')\n";
-        logFile << "ax1.plot(t, xMin[0:len(t)], 'r^', label='xCoMMin')\n";
-        logFile << "ax2.plot(t, yMin[0:len(t)], 'b^', label='yCoMMin')\n";
-        logFile << "ax3.plot(t, zMin[0:len(t)], 'g^', label='zCoMMin')\n";
-        logFile << "ax1.plot(t, xMax[0:len(t)], 'rv', label='xCoMMax')\n";
-        logFile << "ax2.plot(t, yMax[0:len(t)], 'bv', label='yCoMMax')\n";
-        logFile << "ax3.plot(t, zMax[0:len(t)], 'gv', label='zCoMMax')\n";
-        logFile << "ax1.plot(t, xCoPMin[0:len(t)], 'r--', label='xCoPMin')\n";
-        logFile << "ax2.plot(t, yCoPMin[0:len(t)], 'b--', label='yCoPMin')\n";
-        logFile << "ax3.plot(t, zCoPMin[0:len(t)], 'g--', label='zCoPMin')\n";
-        logFile << "ax1.plot(t, xCoP[0:len(t)], 'r,', label='xCoP')\n";
-        logFile << "ax2.plot(t, yCoP[0:len(t)], 'b,', label='yCoP')\n";
-        logFile << "ax3.plot(t, zCoP[0:len(t)], 'g,', label='zCoP')\n";
-        logFile << "ax1.plot(t, xCoPMax[0:len(t)], 'r-.', label='xCoPMax')\n";
-        logFile << "ax2.plot(t, yCoPMax[0:len(t)], 'b-.', label='yCoPMax')\n";
-        logFile << "ax3.plot(t, zCoPMax[0:len(t)], 'g-.', label='zCoPMax')\n";
+        logFile << "ax1.plot(t, x[0:len(t)],       'g--' , linewidth=0.5, label='xCoM')\n";
+        logFile << "ax1.plot(t, xMin[0:len(t)],    'b--' , linewidth=0.5, label='xCoMMin')\n";
+        logFile << "ax1.plot(t, xMax[0:len(t)],    'r--' , linewidth=0.5, label='xCoMMax')\n";
+        logFile << "ax1.plot(t, xCoPMin[0:len(t)], 'b'   , linewidth=0.5, label='xCoPMin')\n";
+        logFile << "ax1.plot(t, xCoP[0:len(t)],    'g'   , linewidth=0.5, label='xCoP')\n";
+        logFile << "ax1.plot(t, xCoPMax[0:len(t)], 'r'   , linewidth=0.5, label='xCoPMax')\n";
+
+        logFile << "ax2.plot(t, y[0:len(t)],       'g--' , linewidth=0.5 , label='yCoM')\n";
+        logFile << "ax2.plot(t, yMin[0:len(t)],    'b--' , linewidth=0.5 , label='yCoMMin')\n";
+        logFile << "ax2.plot(t, yMax[0:len(t)],    'r--' , linewidth=0.5 , label='yCoMMax')\n";
+        logFile << "ax2.plot(t, yCoPMin[0:len(t)], 'b'   , linewidth=0.5 , label='yCoPMin')\n";
+        logFile << "ax2.plot(t, yCoP[0:len(t)],    'g'   , linewidth=0.5 , label='yCoP')\n";
+        logFile << "ax2.plot(t, yCoPMax[0:len(t)], 'r'   , linewidth=0.5 , label='yCoPMax')\n";
+
+        logFile << "ax3.plot(t, z[0:len(t)],       'g--' , linewidth=0.5 , label='zCoM')\n";
+        logFile << "ax3.plot(t, zMin[0:len(t)],    'b--' , linewidth=0.5 , label='zCoMMin')\n";
+        logFile << "ax3.plot(t, zMax[0:len(t)],    'r--' , linewidth=0.5 , label='zCoMMax')\n";
+        logFile << "ax3.plot(t, zCoPMin[0:len(t)], 'b'   , linewidth=0.5 , label='zCoPMin')\n";
+        logFile << "ax3.plot(t, zCoP[0:len(t)],    'g'   , linewidth=0.5 , label='zCoP')\n";
+        logFile << "ax3.plot(t, zCoPMax[0:len(t)], 'r'   , linewidth=0.5 , label='zCoPMax')\n";
+
         logFile << "ax1.set_xlabel('Time (s)')\n";
         logFile << "ax2.set_xlabel('Time (s)')\n";
         logFile << "ax3.set_xlabel('Time (s)')\n";
@@ -267,7 +270,7 @@ class HUMOTO_LOCAL Logger
         logFile << "ax2.legend(loc='upper right', shadow=True)\n";
         logFile << "ax3.legend(loc='upper right', shadow=True)\n";
         logFile << "plt.axis('auto')\n";
-        logFile << "plt.savefig(\"latest_test/xyz.png\")\n";
+        logFile << "plt.savefig('latest_test/xyz.pdf', format='pdf', dpi=1000)\n";
         logFile << "plt.show()\n";
     }
     void plot3Dtraj(std::ofstream &logFile) const
@@ -279,7 +282,7 @@ class HUMOTO_LOCAL Logger
         logFile << "    pointsX = np.array([x-wX*0.5, x+wX*0.5, x+wX*0.5, x-wX*0.5, x-wX*0.5])\n";
         logFile << "    pointsY = np.array([y+wY*0.5, y+wY*0.5, y-wY*0.5, y-wY*0.5, y+wY*0.5])\n";
         logFile << "    pointsZ = np.array([z,z,z,z,z])\n";
-        logFile << "    ax.plot(pointsX, pointsY, pointsZ, color)\n";
+        logFile << "    ax.plot(pointsX, pointsY, pointsZ, color, linewidth=0.5)\n";
         /************************************
          *  PLOT ALL TRAJECTORIES TOGETHER  *
          ************************************/
@@ -289,13 +292,13 @@ class HUMOTO_LOCAL Logger
         logFile << "    plotStep(ax, step, 0.2, 0.1, 'r')\n";
         logFile << "for step in rightFootSteps:\n";
         logFile << "    plotStep(ax, step, 0.2, 0.1, 'b')\n";
-        logFile << "ax.plot(trajLFootX, trajLFootY, trajLFootZ, 'r', label='Left foot')\n";
-        logFile << "ax.plot(trajRFootX, trajRFootY, trajRFootZ, 'b', label='Right foot')\n";
-        logFile << "ax.plot(x, y, z, 'g', label='CoM')\n";
-        logFile << "ax.plot(x, y, highestFeasibleZ, '--g', label='CoM')\n";
-        logFile << "ax.plot(xCoP, yCoP, zCoP, 'y', label='CoP')\n";
+        logFile << "ax.plot(trajLFootX, trajLFootY, trajLFootZ, 'r', linewidth=0.5, label='Left foot')\n";
+        logFile << "ax.plot(trajRFootX, trajRFootY, trajRFootZ, 'b', linewidth=0.5, label='Right foot')\n";
+        logFile << "ax.plot(x, y, z, 'g', linewidth=0.5, label='CoM')\n";
+        logFile << "ax.plot(x, y, highestFeasibleZ, '--g', linewidth=0.5, label='CoM')\n";
+        logFile << "ax.plot(xCoP, yCoP, zCoP, 'y', linewidth=0.5, label='CoP')\n";
         logFile << "ax.legend()\n";
-        logFile << "plt.savefig(\"latest_test/3D.png\")\n";
+        logFile << "plt.savefig('latest_test/3D.pdf', format='pdf', dpi=1000)\n";
         logFile << "plt.show()\n";
     }
 
@@ -305,15 +308,15 @@ class HUMOTO_LOCAL Logger
          *  PLOT SAGITAL AND TRANSVERSE MOTION  *
          ****************************************/
         logFile << "f, (ax1, ax2, ax3) = plt.subplots(3, sharex=False, sharey=False)\n";
-        logFile << "ax1.plot(y, z, 'r', label='z_CoM = f(y_CoM)')\n";
+        logFile << "ax1.plot(y, z, 'r', linewidth=0.5, label='z_CoM = f(y_CoM)')\n";
         logFile << "ax1.plot(y, highestFeasibleZ, '--g', label='z_Max = f(y_CoM)')\n";
-        logFile << "ax2.plot(x, z, 'b', label='z_CoM = f(x_CoM)')\n";
+        logFile << "ax2.plot(x, z, 'b', linewidth=0.5, label='z_CoM = f(x_CoM)')\n";
         logFile << "ax2.plot(x, highestFeasibleZ, '--g', label='z_Max = f(x_CoM)')\n";
-        logFile << "ax3.plot(x, y, 'g', label='x_CoM = f(y_CoM)')\n";
+        logFile << "ax3.plot(x, y, 'g', linewidth=0.5, label='x_CoM = f(y_CoM)')\n";
         logFile << "ax1.legend(loc='lower left', shadow=False)\n";
         logFile << "ax2.legend(loc='lower left', shadow=False)\n";
         logFile << "ax3.legend(loc='lower left', shadow=False)\n";
-        logFile << "plt.savefig(\"latest_test/projections.png\")\n";
+        logFile << "plt.savefig('latest_test/projections.pdf', format='pdf', dpi=1000)\n";
         logFile << "plt.show()\n";
     }
 
