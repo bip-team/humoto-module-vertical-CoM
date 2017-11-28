@@ -177,7 +177,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @brief Main constructor of the MPC problem, based on the problems parameters
     ///
     /// @param pbParam problems parameters
-    MPCVerticalMotion(const ProblemParameters& pbParam)
+    MPCVerticalMotion(const ProblemParameters& pbParam, const ModelState& model_state)
         : pb_params_(pbParam),
           velocity_selector_(3, 1),
           step_plan_(pb_params_.leftStepsParameters_, pb_params_.rightStepsParameters_,
@@ -186,7 +186,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
           rightFootTraj_(step_plan_.rightFoot()),
           leftFootTraj_(step_plan_.leftFoot()),
           current_step_index_(0),
-          logger_(pb_params_.t_, step_plan_, rightFootTraj_, leftFootTraj_, pb_params_)
+          logger_(pb_params_.t_, step_plan_, rightFootTraj_, leftFootTraj_, pb_params_, model_state)
     {
         std::cout << "Ctor MPCVerticalMotion" << std::endl;
         t_ = pb_params_.t_;

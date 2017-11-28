@@ -74,20 +74,20 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
 
         for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
         {
-            zBoundsLow_(6 * i + 0) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
-            zBoundsLow_(6 * i + 1) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
-            zBoundsLow_(6 * i + 2) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) +
+            zBoundsLow_(6 * i + 0) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + 1 + i);
+            zBoundsLow_(6 * i + 1) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + 1 + i);
+            zBoundsLow_(6 * i + 2) = mpc.stepPlan().z()(mpc.currentStepIndex() + 1 + i) +
                                      mpc.zetaMin() * mpc.pbParams().g_;
-            zBoundsLow_(6 * i + 3) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
-            zBoundsLow_(6 * i + 4) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
+            zBoundsLow_(6 * i + 3) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + 1 + i);
+            zBoundsLow_(6 * i + 4) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + 1 + i);
             zBoundsLow_(6 * i + 5) = -humoto::g_infinity;
 
-            zBoundsHigh_(6 * i + 0) = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
-            zBoundsHigh_(6 * i + 1) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
+            zBoundsHigh_(6 * i + 0) = mpc.stepPlan().xMax()(mpc.currentStepIndex() + 1 + i);
+            zBoundsHigh_(6 * i + 1) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + 1 + i);
             zBoundsHigh_(6 * i + 2) = humoto::g_infinity;
-            zBoundsHigh_(6 * i + 3) = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
-            zBoundsHigh_(6 * i + 4) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
-            zBoundsHigh_(6 * i + 5) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) +
+            zBoundsHigh_(6 * i + 3) = mpc.stepPlan().xMax()(mpc.currentStepIndex() + 1 + i);
+            zBoundsHigh_(6 * i + 4) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + 1 + i);
+            zBoundsHigh_(6 * i + 5) = mpc.stepPlan().z()(mpc.currentStepIndex() + 1 + i) +
                                       mpc.zetaMax() * mpc.pbParams().g_;
         }
 

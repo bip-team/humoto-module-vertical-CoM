@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
     // control problem, which is used to construct an optimization problem
     std::cout << "MPC" << std::endl;
-    humoto::wpg05::MPCVerticalMotion mpc(problem_parameters);
+    humoto::wpg05::MPCVerticalMotion mpc(problem_parameters, model_state);
 
     // Populate the optimization problem
     std::cout << "Hierarchy" << std::endl;

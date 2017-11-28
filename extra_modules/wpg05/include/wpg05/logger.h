@@ -26,7 +26,7 @@ class HUMOTO_LOCAL Logger
   public:
     /// @brief Constructor
     Logger(double timeStep, const StepPlan &stepPlan, const FootTraj &rightFootTraj,
-           const FootTraj &leftFootTraj, const ProblemParameters &pbParams)
+           const FootTraj &leftFootTraj, const ProblemParameters &pbParams, const ModelState& model_state)
         : stepPlan_(stepPlan),
           rightFootTraj_(rightFootTraj),
           leftFootTraj_(leftFootTraj),
@@ -47,6 +47,8 @@ class HUMOTO_LOCAL Logger
         }
         highestFeasibleZ_.resize(xMin_.rows());
         highestFeasibleZ_.setZero();
+        addState(model_state.position(), model_state.velocity(), model_state.acceleration(),
+                 pbParams_.zetaZero_);
     }
 
     /// @brief Adds a single state and control to the history
@@ -57,19 +59,20 @@ class HUMOTO_LOCAL Logger
     {
         addStateAndControl(state, control, pbParams_.zetaZero_);
     }
-    void addStateAndControl(const etools::Vector9 &state, const etools::Vector3 &control,
-                            const double &zeta)
+
+    void addControl(const etools::Vector3 &control) { jerksCoM_.push_back(control); }
+
+    void addState(const etools::Vector3 &position, const etools::Vector3 &velocity,
+                  const etools::Vector3 &acceleration, const double &zeta)
     {
-        Eigen::Vector3d position, velocity, acceleration, cop, copMin, copMax;
-        position << state(0), state(3), state(6);
-        velocity << state(1), state(4), state(7);
-        acceleration << state(2), state(5), state(8);
         positionsCoM_.push_back(position);
         velocitiesCoM_.push_back(velocity);
         accelerationsCoM_.push_back(acceleration);
-        jerksCoM_.push_back(control);
+
         double zetaMin = zeta - pbParams_.zetaSpan_ / 2;
         double zetaMax = zeta + pbParams_.zetaSpan_ / 2;
+
+        Eigen::Vector3d cop, copMin, copMax;
         copMin(0) = position(0) - zetaMin * acceleration(0);
         copMin(1) = position(1) - zetaMin * acceleration(1);
         copMin(2) = position(2) - zetaMin * (acceleration(2) + gravity_);
@@ -82,6 +85,24 @@ class HUMOTO_LOCAL Logger
         positionsCoPMin_.push_back(copMin);
         positionsCoP_.push_back(cop);
         positionsCoPMax_.push_back(copMax);
+    }
+
+    void addStateAndControl(const ModelState& state, const etools::Vector3 &control,
+                            const double &zeta)
+    {
+        addState(state.position(), state.velocity(), state.acceleration(), zeta);
+        addControl(control);
+    }
+
+    void addStateAndControl(const etools::Vector9 &state, const etools::Vector3 &control,
+                            const double &zeta)
+    {
+        Eigen::Vector3d position, velocity, acceleration, cop, copMin, copMax;
+        position << state(0), state(3), state(6);
+        velocity << state(1), state(4), state(7);
+        acceleration << state(2), state(5), state(8);
+        addState(position, velocity, acceleration, zeta);
+        addControl(control);
     }
 
     void addHighestFeasibleZ(double zMax, long index) const { highestFeasibleZ_[index] = zMax; }
@@ -218,24 +239,24 @@ class HUMOTO_LOCAL Logger
          *  PLOT COM AND COP TRAJECTORIES  *
          ***********************************/
         logFile << "f, (ax1, ax2, ax3) = plt.subplots(3, sharex=False, sharey=False)\n";
-        logFile << "ax1.plot(t, x, 'r-', label='xCoM')\n";
-        logFile << "ax2.plot(t, y, 'b-', label='yCoM')\n";
-        logFile << "ax3.plot(t, z, 'g-', label='zCoM')\n";
+        logFile << "ax1.plot(t, x[0:len(t)], 'r-', label='xCoM')\n";
+        logFile << "ax2.plot(t, y[0:len(t)], 'b-', label='yCoM')\n";
+        logFile << "ax3.plot(t, z[0:len(t)], 'g-', label='zCoM')\n";
         logFile << "ax1.plot(t, xMin[0:len(t)], 'r^', label='xCoMMin')\n";
         logFile << "ax2.plot(t, yMin[0:len(t)], 'b^', label='yCoMMin')\n";
         logFile << "ax3.plot(t, zMin[0:len(t)], 'g^', label='zCoMMin')\n";
         logFile << "ax1.plot(t, xMax[0:len(t)], 'rv', label='xCoMMax')\n";
         logFile << "ax2.plot(t, yMax[0:len(t)], 'bv', label='yCoMMax')\n";
         logFile << "ax3.plot(t, zMax[0:len(t)], 'gv', label='zCoMMax')\n";
-        logFile << "ax1.plot(t, xCoPMin, 'r--', label='xCoPMin')\n";
-        logFile << "ax2.plot(t, yCoPMin, 'b--', label='yCoPMin')\n";
-        logFile << "ax3.plot(t, zCoPMin, 'g--', label='zCoPMin')\n";
-        logFile << "ax1.plot(t, xCoP, 'r,', label='xCoP')\n";
-        logFile << "ax2.plot(t, yCoP, 'b,', label='yCoP')\n";
-        logFile << "ax3.plot(t, zCoP, 'g,', label='zCoP')\n";
-        logFile << "ax1.plot(t, xCoPMax, 'r-.', label='xCoPMax')\n";
-        logFile << "ax2.plot(t, yCoPMax, 'b-.', label='yCoPMax')\n";
-        logFile << "ax3.plot(t, zCoPMax, 'g-.', label='zCoPMax')\n";
+        logFile << "ax1.plot(t, xCoPMin[0:len(t)], 'r--', label='xCoPMin')\n";
+        logFile << "ax2.plot(t, yCoPMin[0:len(t)], 'b--', label='yCoPMin')\n";
+        logFile << "ax3.plot(t, zCoPMin[0:len(t)], 'g--', label='zCoPMin')\n";
+        logFile << "ax1.plot(t, xCoP[0:len(t)], 'r,', label='xCoP')\n";
+        logFile << "ax2.plot(t, yCoP[0:len(t)], 'b,', label='yCoP')\n";
+        logFile << "ax3.plot(t, zCoP[0:len(t)], 'g,', label='zCoP')\n";
+        logFile << "ax1.plot(t, xCoPMax[0:len(t)], 'r-.', label='xCoPMax')\n";
+        logFile << "ax2.plot(t, yCoPMax[0:len(t)], 'b-.', label='yCoPMax')\n";
+        logFile << "ax3.plot(t, zCoPMax[0:len(t)], 'g-.', label='zCoPMax')\n";
         logFile << "ax1.set_xlabel('Time (s)')\n";
         logFile << "ax2.set_xlabel('Time (s)')\n";
         logFile << "ax3.set_xlabel('Time (s)')\n";

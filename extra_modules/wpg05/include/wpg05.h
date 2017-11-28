@@ -15,9 +15,9 @@
 
 #include "wpg05/problem_parameters.h"
 #include "wpg05/step_plan.h"
-#include "wpg05/logger.h"
 #include "wpg05/model_state.h"
 #include "wpg05/model.h"
+#include "wpg05/logger.h"
 //#include "wpg05/simple_mpc.h"
 #include "wpg05/mpc_vertical_motion.h"
 #include "wpg05/task_com_height.h"
