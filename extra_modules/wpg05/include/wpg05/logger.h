@@ -80,6 +80,9 @@ class HUMOTO_LOCAL Logger
         positionsCoM_.push_back(position);
         velocitiesCoM_.push_back(velocity);
         accelerationsCoM_.push_back(acceleration);
+        zetas_.push_back(zeta);
+        zetasMin_.push_back(zetaMin);
+        zetasMax_.push_back(zetaMax);
 
         //double zetaMin = zeta - pbParams_.zetaSpan_ / 2;
         //double zetaMax = zeta + pbParams_.zetaSpan_ / 2;
@@ -132,6 +135,13 @@ class HUMOTO_LOCAL Logger
         Eigen::MatrixXd mat;
         mat.resize(vec.size(), 3);
         for (size_t i = 0; i < vec.size(); ++i) mat.row(i) << vec[i].transpose();
+        return mat;
+    }
+    Eigen::MatrixXd toVector(const std::vector<double> &vec) const
+    {
+        Eigen::VectorXd mat;
+        mat.resize(vec.size());
+        for (size_t i = 0; i < vec.size(); ++i) mat[i] = vec[i];
         return mat;
     }
 
@@ -205,6 +215,10 @@ class HUMOTO_LOCAL Logger
         logFile << "dddy = np.array(" << jerks.col(1).transpose().format(cleanFmt) << ")\n";
         logFile << "dddz = np.array(" << jerks.col(2).transpose().format(cleanFmt) << ")\n";
 
+        logFile << "zetas = np.array(" << toVector(zetas_).transpose().format(cleanFmt) << ")\n";
+        logFile << "zetasMin = np.array(" << toVector(zetasMin_).transpose().format(cleanFmt) << ")\n";
+        logFile << "zetasMax = np.array(" << toVector(zetasMax_).transpose().format(cleanFmt) << ")\n";
+
         logFile << "time = np.array(" << rightFootTraj_.t_.head(size()).transpose().format(cleanFmt)
                 << ")\n";
         logFile << "trajRFootX = np.array("
@@ -241,6 +255,18 @@ class HUMOTO_LOCAL Logger
         logFile << "plt.legend()\n";
         logFile << "plt.savefig('latest_test/trajFoot.pdf', format='pdf', dpi=1000)\n";
         logFile << "plt.show()\n";
+    }
+    void plotZetas(std::ofstream& logFile) const
+    {
+      /****************
+      *  PLOT ZETAS  *
+      ****************/
+      logFile << "plt.plot(iter, zetas, 'g', linewidth=0.5, label='zetas')\n";
+      logFile << "plt.plot(iter, zetasMin, 'b', linewidth=0.5, label='zetasMin')\n";
+      logFile << "plt.plot(iter, zetasMax, 'r', linewidth=0.5, label='zetasMax')\n";
+      logFile << "plt.legend()\n";
+      logFile << "plt.savefig('latest_test/zetas.pdf', format='pdf', dpi=1000)\n";
+      logFile << "plt.show()\n";
     }
     void plotXYZ(std::ofstream &logFile) const
     {
@@ -284,29 +310,22 @@ class HUMOTO_LOCAL Logger
     }
     void plot3Dtraj(std::ofstream &logFile) const
     {
-        logFile << "def plotStep(ax, pos, wX, wY, color):\n";
-        logFile << "    x = pos[0]\n";
-        logFile << "    y = pos[1]\n";
-        logFile << "    z = pos[2]\n";
-        logFile << "    pointsX = np.array([x-wX*0.5, x+wX*0.5, x+wX*0.5, x-wX*0.5, x-wX*0.5])\n";
-        logFile << "    pointsY = np.array([y+wY*0.5, y+wY*0.5, y-wY*0.5, y-wY*0.5, y+wY*0.5])\n";
-        logFile << "    pointsZ = np.array([z,z,z,z,z])\n";
-        logFile << "    ax.plot(pointsX, pointsY, pointsZ, color, linewidth=0.5)\n";
         /************************************
          *  PLOT ALL TRAJECTORIES TOGETHER  *
          ************************************/
         logFile << "fig = plt.figure()\n";
         logFile << "ax = fig.gca(projection='3d')\n";
         logFile << "for step in leftFootSteps:\n";
-        logFile << "    plotStep(ax, step, 0.2, 0.1, 'r')\n";
+        logFile << "    plotStep3D(ax, step, 0.2, 0.1, 'r')\n";
         logFile << "for step in rightFootSteps:\n";
-        logFile << "    plotStep(ax, step, 0.2, 0.1, 'b')\n";
+        logFile << "    plotStep3D(ax, step, 0.2, 0.1, 'b')\n";
         logFile << "ax.plot(trajLFootX, trajLFootY, trajLFootZ, 'r', linewidth=0.5, label='Left foot')\n";
         logFile << "ax.plot(trajRFootX, trajRFootY, trajRFootZ, 'b', linewidth=0.5, label='Right foot')\n";
         logFile << "ax.plot(x, y, z, 'g', linewidth=0.5, label='CoM')\n";
         logFile << "ax.plot(x, y, highestFeasibleZ, '--g', linewidth=0.5, label='CoM max')\n";
         logFile << "ax.plot(xCoP, yCoP, pz[0:len(xCoP)], 'y', linewidth=0.5, label='CoP')\n";
         logFile << "ax.legend()\n";
+        logFile << "ax.axis('equal')\n";
         logFile << "plt.savefig('latest_test/3D.pdf', format='pdf', dpi=1000)\n";
         logFile << "plt.show()\n";
     }
@@ -322,6 +341,14 @@ class HUMOTO_LOCAL Logger
         logFile << "ax2.plot(x, z, 'b', linewidth=0.5, label='z_CoM = f(x_CoM)')\n";
         logFile << "ax2.plot(x, highestFeasibleZ, '--g', label='z_Max = f(x_CoM)')\n";
         logFile << "ax3.plot(x, y, 'g', linewidth=0.5, label='x_CoM = f(y_CoM)')\n";
+        logFile << "ax3.plot(xCoP, yCoP, 'y', linewidth=0.5, label='x_CoP = f(y_CoP)')\n";
+        logFile << "for i in np.arange(0,len(xCoPMin)):\n";
+        logFile << "    ax3.plot([xCoPMin[i],xCoPMax[i]], [yCoPMin[i],yCoPMax[i]], 'k', linewidth=0.2)\n";
+        logFile << "for step in leftFootSteps:\n";
+        logFile << "    plotStep2D(ax3, step, 0.2, 0.1, 'r')\n";
+        logFile << "for step in rightFootSteps:\n";
+        logFile << "    plotStep2D(ax3, step, 0.2, 0.1, 'b')\n";
+        logFile << "ax3.axis('equal')\n";
         logFile << "ax1.legend(loc='lower left', shadow=False)\n";
         logFile << "ax2.legend(loc='lower left', shadow=False)\n";
         logFile << "ax3.legend(loc='lower left', shadow=False)\n";
@@ -342,8 +369,24 @@ class HUMOTO_LOCAL Logger
         logFile << "if not os.path.isdir('latest_test'):\n";
         logFile << "    os.mkdir('latest_test')\n";
 
+        logFile << "def plotStep3D(ax, pos, wX, wY, color):\n";
+        logFile << "    x = pos[0]\n";
+        logFile << "    y = pos[1]\n";
+        logFile << "    z = pos[2]\n";
+        logFile << "    pointsX = np.array([x-wX*0.5, x+wX*0.5, x+wX*0.5, x-wX*0.5, x-wX*0.5])\n";
+        logFile << "    pointsY = np.array([y+wY*0.5, y+wY*0.5, y-wY*0.5, y-wY*0.5, y+wY*0.5])\n";
+        logFile << "    pointsZ = np.array([z,z,z,z,z])\n";
+        logFile << "    ax.plot(pointsX, pointsY, pointsZ, color, linewidth=0.5)\n";
+        logFile << "def plotStep2D(ax, pos, wX, wY, color):\n";
+        logFile << "    x = pos[0]\n";
+        logFile << "    y = pos[1]\n";
+        logFile << "    pointsX = np.array([x-wX*0.5, x+wX*0.5, x+wX*0.5, x-wX*0.5, x-wX*0.5])\n";
+        logFile << "    pointsY = np.array([y+wY*0.5, y+wY*0.5, y-wY*0.5, y-wY*0.5, y+wY*0.5])\n";
+        logFile << "    ax.plot(pointsX, pointsY, color, linewidth=0.5)\n";
+
         logEverything(logFile);
         plotTrajectoryFoot(logFile);
+        plotZetas(logFile);
         plotXYZ(logFile);
         plot3Dtraj(logFile);
         plotPlaneProjectionTraj(logFile);
@@ -356,6 +399,8 @@ class HUMOTO_LOCAL Logger
     std::vector<Eigen::Vector3d> velocitiesCoM_;
     std::vector<Eigen::Vector3d> accelerationsCoM_;
     std::vector<Eigen::Vector3d> jerksCoM_;
+
+    std::vector<double> zetas_, zetasMin_, zetasMax_;
 
     /// @brief CoPMin = position - zetaMin * acceleration
     std::vector<Eigen::Vector3d> positionsCoPMin_;
