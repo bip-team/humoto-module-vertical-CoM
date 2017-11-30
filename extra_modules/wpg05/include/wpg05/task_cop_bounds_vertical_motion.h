@@ -70,6 +70,13 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
         zBoundsHigh_.resize(6 * mpc.getPreviewHorizonLength());
         zBoundsLow_.resize(6 * mpc.getPreviewHorizonLength());
 
+        if (mpc.pbParams().verbose_ > 0)
+        {
+            std::cout << "Form CoP Task:" << std::endl;
+            std::cout << "zetaMin = " << mpc.zetaMin() << ", zetaMax = " << mpc.zetaMax()
+                      << std::endl;
+        }
+
         for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
         {
             zBoundsLow_(6 * i + 0) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + 1 + i);

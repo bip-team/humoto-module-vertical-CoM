@@ -138,6 +138,9 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @return The C matrix
     etools::Matrix6x9 computeC()
     {
+        if (pb_params_.verbose_ > 0)
+            std::cout << "Compute C, zetaMin = " << zetaMin_ << ", zeta = " << zeta_
+                      << ", zetaMax = " << zetaMax_ << std::endl;
         Eigen::Vector3d Cblock;
         Cblock(0) = 1;
         Cblock(1) = 0;
@@ -188,7 +191,8 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
           current_step_index_(0),
           logger_(pb_params_.t_, step_plan_, rightFootTraj_, leftFootTraj_, pb_params_, model_state)
     {
-        std::cout << "Ctor MPCVerticalMotion" << std::endl;
+        if (pb_params_.verbose_ > 0)
+            std::cout << "Ctor MPCVerticalMotion" << std::endl;
         t_ = pb_params_.t_;
         zeta_ = pb_params_.zetaZero_;
         zetaMin_ = zeta_ - pb_params_.zetaSpan_ / 2;
@@ -247,6 +251,8 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     ControlProblemStatus::Status update(const humoto::wpg05::Model& model,
                                         const humoto::wpg05::ProblemParameters& problem_parameters)
     {
+        if (pb_params_.verbose_ > 0)
+           std::cout << "MPC.update" << std::endl;
         sol_structure_.reset();
         // Add a variable of size 3*n called JERK_VARIABLE_ID to the structure of the solution
         sol_structure_.addSolutionPart("JERK_VARIABLE_ID", problem_parameters.nHorizon_ * 3);
@@ -272,6 +278,8 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     humoto::wpg05::ModelState getNextModelState(const humoto::Solution& solution,
                                                 const humoto::wpg05::Model& model)
     {
+        if (pb_params_.verbose_ > 0)
+            std::cout << "MPC.getNextModelState" << std::endl;
         humoto::wpg05::ModelState state;
 
         current_state_ = model.state_.getStateVector();
@@ -286,6 +294,15 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
 
         zeta_ = (state.position_(2) - step_plan_.z()(currentStepIndex() + 1)) /
                 (state.acceleration_(2) + pb_params_.g_);
+
+        /******************************************
+        *  NEED TO HANDLE ZETA BOUNDS CORRECTLY  *
+        ******************************************/
+        //zetaMin_ = zeta_ - pb_params_.zetaSpan_ / 2;
+        //zetaMax_ = zeta_ + pb_params_.zetaSpan_ / 2;
+
+        if (pb_params_.verbose_ > 0)
+            std::cout << "zetaMin_: " << zetaMin_ << "zeta_: " << zeta_ << ", zetaMax_: " << zetaMax_ << std::endl;
 
 
         std::cout << "currentStepIndex: " << current_step_index_ << std::endl;

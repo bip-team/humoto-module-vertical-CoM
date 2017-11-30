@@ -106,6 +106,12 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     /// @brief Width of foot along the Y direction (sideway)
     double footYwidth_;
 
+    /*******************
+    *  MISCELLANEOUS  *
+    *******************/
+    int verbose_;
+
+
   protected:
 /// Those macros define the necessary tools to read the variables from a yaml configuration file
 #define HUMOTO_CONFIG_SECTION_ID "ProblemParameters"
@@ -136,7 +142,8 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     HUMOTO_CONFIG_COMPOUND_(comToRightHip)             \
     HUMOTO_CONFIG_COMPOUND_(comToLeftHip)              \
     HUMOTO_CONFIG_SCALAR_(footXwidth)                  \
-    HUMOTO_CONFIG_SCALAR_(footYwidth)
+    HUMOTO_CONFIG_SCALAR_(footYwidth)                  \
+    HUMOTO_CONFIG_SCALAR_(verbose)
 #define HUMOTO_CONFIG_CONSTRUCTOR ProblemParameters
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
@@ -170,6 +177,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
         gainTaskMinJerk_ = 100;
         footXwidth_ = 0.2;
         footYwidth_ = 0.1;
+        verbose_ = 0;
         setDefaultStepParameters();
     }
 

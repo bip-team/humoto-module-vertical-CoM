@@ -47,6 +47,7 @@ ModelState:
 ProblemParameters:
   zetaZero: 0.1
   zetaSpan: 0.1
+  verbose: 0
   t: 0.1
   endTime: 15
   nHorizon: 20
