@@ -45,8 +45,8 @@ ModelState:
   acceleration: [0.0, 0.0, 0.0]
 
 ProblemParameters:
-  zetaZero: 0.1
-  zetaSpan: 0.1
+  zetaZero: 0.075
+  zetaSpan: 0.025
   t: 0.1
   endTime: 15
   nHorizon: 20

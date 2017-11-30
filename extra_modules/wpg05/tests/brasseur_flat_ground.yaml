@@ -40,12 +40,12 @@ SolverParameters:
     dropIneqConPriority: 1
 
 ProblemParameters:
-  zetaZero: 0.1
-  zetaSpan: 0.1
   verbose: 0
+  zetaZero: 0.075
+  zetaSpan: 0.05
   t: 0.1
   endTime: 15
-  nHorizon: 20
+  nHorizon: 10
   comVelRef: [0.4, 0.0, 0.0]
   comHeightRef: 1.0
 
