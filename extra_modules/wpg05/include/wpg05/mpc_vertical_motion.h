@@ -285,7 +285,8 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     ///
     ///@return next model state.
     humoto::wpg05::ModelState getNextModelState(const humoto::Solution& solution,
-                                                const humoto::wpg05::Model& model)
+                                                const humoto::wpg05::Model& model,
+                                                const bool incrementStepIndex = true)
     {
         if (pb_params_.verbose_ > 0)
             std::cout << "MPC.getNextModelState" << std::endl;
@@ -315,7 +316,9 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
 
 
         std::cout << "currentStepIndex: " << current_step_index_ << std::endl;
-        current_step_index_++;
+
+        if(incrementStepIndex)
+          current_step_index_++;
 
         return (state);
     }

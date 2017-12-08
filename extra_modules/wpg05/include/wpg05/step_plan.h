@@ -200,15 +200,18 @@ struct FootTraj
     {
         //First we find the correct trajPiece for this time
         size_t index = 0;
-        while(!(trajPieces_[index].tBegin_ < t && trajPieces_[index].tEnd_ >= t))
+        while(!(trajPieces_[index].tBegin_ <= t && trajPieces_[index].tEnd_ > t))
         {
             index++;
         }
 
         //Then we compute the quantities through the polynomial3D
         foot_state.position_ = trajPieces_[index].p_.getPositionAt(t);
+        std::cout << "foot_state.position_: " << foot_state.position_.transpose() << std::endl;
         foot_state.velocity_ = trajPieces_[index].p_.getVelocityAt(t);
+        std::cout << "foot_state.velocity_: " << foot_state.velocity_.transpose() << std::endl;
         foot_state.acceleration_ = trajPieces_[index].p_.getAccelerationAt(t);
+        std::cout << "foot_state.acceleration_: " << foot_state.acceleration_.transpose() << std::endl;
 
         foot_state.rpy_(humoto::AngleIndex::YAW) = 0;
         foot_state.angular_velocity_(humoto::AngleIndex::YAW) = 0;
@@ -218,7 +221,7 @@ struct FootTraj
     bool isSupportAt(double time) const
     {
         size_t index = 0;
-        while (!(t_[index] < time && t_[index + 1] >= time)) index++;
+        while (!(t_[index] <= time && t_[index + 1] > time)) index++;
 
         if (supportFoot_[index] && supportFoot_[index + 1])
             return true;
