@@ -1,0 +1,4 @@
+RobotParameters:
+  soleToAnkle: [0.0, 0.0, 0.1]
+  comToLeftHip: [0.0, 0.1, -0.1]
+  comToRightHip: [0.0, -0.1, -0.1]

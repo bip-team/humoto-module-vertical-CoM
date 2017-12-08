@@ -1,0 +1,19 @@
+ModelState:
+  com_state:
+    position: [0.0, 0.0, 0.7]
+    velocity: [0.1, 0.0, 0.0]
+    acceleration: [0.0, 0.0, 0.0]
+  left_foot_state:
+    position: [0, 0.07845, 0]
+    velocity: [0, 0, 0]
+    acceleration: [0, 0, 0]
+    rpy: [0, 0, 0]
+    angular_velocity: [0, 0, 0]
+    angular_acceleration: [0, 0, 0]
+  right_foot_state:
+    position: [0, -0.07845, 0]
+    velocity: [0, 0, 0]
+    acceleration: [0, 0, 0]
+    rpy: [0, 0, 0]
+    angular_velocity: [0, 0, 0]
+    angular_acceleration: [0, 0, 0]

@@ -1,0 +1,16 @@
+ProblemParameters:
+  verbose: 0
+  zetaZero: 0.075
+  zetaSpan: 0.05
+  t: 0.1
+  endTime: 15
+  nHorizon: 10
+  comVelRef: [0.4, 0.0, 0.0]
+  comHeightRef: 1.0
+
+  gainTaskCoPBounds: 1
+  gainTaskKinematicsPolygon: 1
+  gainTaskCoMHeight: 1
+  gainTaskVelocity: 1
+  gainTaskMinJerk: 1
+  gainTaskCoPPosRef: 1
