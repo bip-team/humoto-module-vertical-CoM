@@ -19,6 +19,7 @@ namespace wpg05
 class HUMOTO_LOCAL ModelState : public humoto::ModelState,
                                 public humoto::config::RelaxedConfigurableBase
 {
+  //TODO this class should only contain a PointMassState instead of position, velocity and acceleration
   protected:
 /// Those macros define the necessary tools to read the variables from a yaml configuration file
 #define HUMOTO_CONFIG_SECTION_ID "ModelState"
@@ -38,6 +39,7 @@ class HUMOTO_LOCAL ModelState : public humoto::ModelState,
   public:
     /// @brief Default constructor
     ModelState() { setDefaults(); }
+    ModelState(const etools::Vector9& vec) { updateFromVector(vec); }
 
     /// @brief Sets the default values of the model state
     void setDefaults()

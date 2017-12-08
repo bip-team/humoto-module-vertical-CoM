@@ -226,6 +226,15 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
 
     /// @brief Getter for currentState
     const etools::Vector9& currentState() const { return current_state_; }
+
+    humoto::rigidbody::PointMassState getCoMState() const
+    {
+      ModelState ms(current_state_);
+      humoto::rigidbody::PointMassState com_state;
+      com_state.set(ms.position_, ms.velocity_, ms.acceleration_);
+      return com_state;
+    }
+
     /// @brief Getter for logger
     const Logger& logger() const { return logger_; }
     Logger& logger() { return logger_; }

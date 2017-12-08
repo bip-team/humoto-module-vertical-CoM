@@ -20,29 +20,6 @@ namespace humoto
 {
 namespace wpg05
 {
-struct FootTraj
-{
-    Eigen::VectorXd x_, y_, z_, t_;
-    std::vector<bool> supportFoot_;
-
-    void resize(int s)
-    {
-        x_.resize(s);
-        y_.resize(s);
-        z_.resize(s);
-        t_.resize(s);
-        supportFoot_.resize(s);
-        x_.setZero();
-        y_.setZero();
-        z_.setZero();
-        t_.setZero();
-    }
-    Eigen::Vector3d operator()(long i) const
-    {
-        Eigen::Vector3d pos(x_(i), y_(i), z_(i));
-        return pos;
-    }
-};
 
 struct Polynomial3D
 {
@@ -51,7 +28,17 @@ struct Polynomial3D
     etools::Vector7 ax;
     etools::Vector7 ay;
     etools::Vector7 az;
-    void plotBetween(double T0, double T1)
+
+    void setConstant(double tBegin, etools::Vector3 pos)
+    {
+      t0 = tBegin;
+      x0 = pos;
+      ax.setZero();
+      ay.setZero();
+      az.setZero();
+    }
+
+    void plotBetween(double T0, double T1) const
     {
         Eigen::VectorXd t = Eigen::VectorXd::LinSpaced(100, T0, T1);
         Eigen::VectorXd trajX, trajY, trajZ;
@@ -85,7 +72,7 @@ struct Polynomial3D
     /// @brief Applies the polynomial defined by coeff to the list of values t and store the result
     /// in res
     void applyPolynomial(Eigen::Ref<Eigen::VectorXd> res, const Eigen::VectorXd& coeff,
-                         Eigen::VectorXd t, double x0)
+                         Eigen::VectorXd t, double x0) const
     {
         // Vector t - t0
         for (long i = 0; i < t.size(); ++i)
@@ -101,7 +88,155 @@ struct Polynomial3D
         }
         res = M * coeff + Eigen::VectorXd::Constant(t.size(), x0);
     }
+
+    Eigen::Vector3d getPositionAt(double t) const
+    {
+      etools::Vector7 variables;
+      t = t-t0;
+      variables[0] = 1;
+      variables[1] = variables[0] * t;
+      variables[2] = variables[1] * t;
+      variables[3] = variables[2] * t;
+      variables[4] = variables[3] * t;
+      variables[5] = variables[4] * t;
+      variables[6] = variables[5] * t;
+
+      Eigen::Vector3d res(ax.dot(variables), ay.dot(variables), az.dot(variables));
+      return res;
+    }
+    etools::Vector6 velCoeff(const etools::Vector7& A) const
+    {
+      etools::Vector6 diffA;
+      diffA[0] = A[1];
+      diffA[1] = 2*A[2];
+      diffA[2] = 3*A[3];
+      diffA[3] = 4*A[4];
+      diffA[4] = 5*A[5];
+      diffA[5] = 6*A[6];
+      return diffA;
+    }
+
+    Eigen::Vector3d getVelocityAt(double t) const
+    {
+      etools::Vector6 variables;
+      t = t-t0;
+      variables[0] = 1;
+      variables[1] = variables[0] * t;
+      variables[2] = variables[1] * t;
+      variables[3] = variables[2] * t;
+      variables[4] = variables[3] * t;
+      variables[5] = variables[4] * t;
+
+      etools::Vector6 dax = velCoeff(ax);
+      etools::Vector6 day = velCoeff(ay);
+      etools::Vector6 daz = velCoeff(az);
+      Eigen::Vector3d res(dax.dot(variables), day.dot(variables), daz.dot(variables));
+      return res;
+    }
+
+    etools::Vector5 accCoeff(const etools::Vector7& A) const
+    {
+      etools::Vector5 ddiffA;
+      ddiffA[0] = 2*A[2];
+      ddiffA[1] = 6*A[3];
+      ddiffA[2] = 12*A[4];
+      ddiffA[3] = 20*A[5];
+      ddiffA[4] = 30*A[6];
+      return ddiffA;
+    }
+
+    Eigen::Vector3d getAccelerationAt(double t) const
+    {
+      etools::Vector5 variables;
+      t = t-t0;
+      variables[0] = 1;
+      variables[1] = variables[0] * t;
+      variables[2] = variables[1] * t;
+      variables[3] = variables[2] * t;
+      variables[4] = variables[3] * t;
+
+      etools::Vector5 ddax = accCoeff(ax);
+      etools::Vector5 dday = accCoeff(ay);
+      etools::Vector5 ddaz = accCoeff(az);
+      Eigen::Vector3d res(ddax.dot(variables), dday.dot(variables), ddaz.dot(variables));
+      return res;
+    }
 };
+
+struct TrajPiece
+{
+    TrajPiece(Polynomial3D p, double tBegin, double tEnd) : p_(p), tBegin_(tBegin), tEnd_(tEnd) {}
+    Polynomial3D p_;
+    double tBegin_;
+    double tEnd_;
+};
+
+struct FootTraj
+{
+    Eigen::VectorXd x_, y_, z_, t_;
+    std::vector<bool> supportFoot_;
+    std::vector<TrajPiece> trajPieces_;
+
+    void resize(int s)
+    {
+        x_.resize(s);
+        y_.resize(s);
+        z_.resize(s);
+        t_.resize(s);
+        supportFoot_.resize(s);
+        x_.setZero();
+        y_.setZero();
+        z_.setZero();
+        t_.setZero();
+    }
+
+    Eigen::Vector3d operator()(long i) const
+    {
+        Eigen::Vector3d pos(x_(i), y_(i), z_(i));
+        return pos;
+    }
+
+    void eval(humoto::rigidbody::RigidBodyState& foot_state, const double t) const
+    {
+        //First we find the correct trajPiece for this time
+        size_t index = 0;
+        while(!(trajPieces_[index].tBegin_ < t && trajPieces_[index].tEnd_ >= t))
+        {
+            index++;
+        }
+
+        //Then we compute the quantities through the polynomial3D
+        foot_state.position_ = trajPieces_[index].p_.getPositionAt(t);
+        foot_state.velocity_ = trajPieces_[index].p_.getVelocityAt(t);
+        foot_state.acceleration_ = trajPieces_[index].p_.getAccelerationAt(t);
+
+        foot_state.rpy_(humoto::AngleIndex::YAW) = 0;
+        foot_state.angular_velocity_(humoto::AngleIndex::YAW) = 0;
+        foot_state.angular_acceleration_(humoto::AngleIndex::YAW) = 0;
+    }
+
+    bool isSupportAt(double time) const
+    {
+        size_t index = 0;
+        while (!(t_[index] < time && t_[index + 1] >= time)) index++;
+
+        if (supportFoot_[index] && supportFoot_[index + 1])
+            return true;
+        else
+            return false;
+    }
+
+    void print() const
+    {
+      std::cout << "print footTraj" << std::endl;
+      for(size_t i=0; i< supportFoot_.size() ; ++i)
+      {
+          std::cout << "t: " << t_[i] << ", pos[" << x_[i] << ", " << y_[i] << ", " << z_[i]
+                    << "], support: " << supportFoot_[i] << std::endl;
+      }
+    }
+};
+
 
 class HUMOTO_LOCAL Step
 {
@@ -242,6 +377,20 @@ class HUMOTO_LOCAL StepPlan
     /// @brief Getter for rightSteps
     const std::vector<Step>& rightSteps() const { return rightSteps_; }
 
+    void print() const
+    {
+        std::cout << "Left foot steps" << std::endl;
+        for (size_t i = 0; i < leftSteps_.size(); ++i)
+        {
+            leftSteps_.at(i).print();
+        }
+        std::cout << "right foot steps" << std::endl;
+        for (size_t i = 0; i < rightSteps_.size(); ++i)
+        {
+            rightSteps_.at(i).print();
+        }
+    }
+
   private:
     /// @brief List of left foot steps
     std::vector<Step> leftSteps_;
@@ -280,7 +429,7 @@ StepPlan::StepPlan(const std::vector<std::vector<double> >& leftStepsParameters,
                    double hStep, double footXwidth, double footYwidth)
     : T_(T), heightSteps_(hStep), stepXWidth_(footXwidth), stepYWidth_(footYwidth)
 {
-    std::cout << "Ctor StepPlan" << std::endl;
+    std::cout << "Ctor StepPlan we are here" << std::endl;
     for (size_t i = 0; i < leftStepsParameters.size(); ++i)
     {
         HUMOTO_ASSERT(leftStepsParameters.at(i).size() == 5,
@@ -359,11 +508,6 @@ Polynomial3D StepPlan::computeFeetTrajectory(const Step& prevStep, const Step& n
 void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> steps,
                                          const double dt)
 {
-    std::cout << "computeFullFeetTrajectory" << std::endl;
-    for (size_t i = 0; i < steps.size(); ++i)
-    {
-        steps[i].print();
-    }
     size_t iStep = 0;
     size_t iTimeStep = 0;
     double currentTime = 0.0;
@@ -376,6 +520,9 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
     }
 
     footTraj.t_ = time;
+    Polynomial3D p0;
+    p0.setConstant(0, steps[iStep].pos());
+    footTraj.trajPieces_.push_back(TrajPiece(p0, 0, steps.at(iStep).tMax()));
 
     while (currentTime < steps.at(iStep).tMax())
     {
@@ -393,6 +540,9 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
         double durationFlight = steps.at(iStep + 1).tMin() - steps.at(iStep).tMax();
         size_t nTimeSteps = (size_t)(durationFlight / dt);
         Polynomial3D p = computeFeetTrajectory(steps.at(iStep), steps.at(iStep + 1), heightSteps_);
+
+        footTraj.trajPieces_.push_back(TrajPiece(p, steps.at(iStep).tMax(), steps.at(iStep+1).tMin()));
+
         p.applyPolynomial(footTraj.x_.segment(iTimeStep, nTimeSteps), p.ax,
                           time.segment(iTimeStep, nTimeSteps), p.x0[0]);
         p.applyPolynomial(footTraj.y_.segment(iTimeStep, nTimeSteps), p.ay,
@@ -406,6 +556,10 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
 
         iTimeStep += nTimeSteps;
         currentTime += nTimeSteps * dt;
+
+        Polynomial3D pConstant;
+        pConstant.setConstant(steps.at(iStep + 1).tMin(), steps.at(iStep+1).pos());
+        footTraj.trajPieces_.push_back(TrajPiece(pConstant, steps.at(iStep + 1).tMin(), steps.at(iStep + 1).tMax()));
 
         // Then the phase with foot on the ground
         while (currentTime < steps.at(iStep + 1).tMax())

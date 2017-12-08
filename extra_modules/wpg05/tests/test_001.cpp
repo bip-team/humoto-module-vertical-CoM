@@ -82,6 +82,16 @@ int main(int argc, char *argv[])
             }
             // form the optimization problem with the current state of the model
             opt_problem.form(solution, model, mpc);
+            std::cout << "opt_problem.number_of_levels_: \n"
+                      << opt_problem.number_of_levels() << std::endl;
+            for (size_t i = 0; i < opt_problem.number_of_levels(); ++i)
+            {
+                std::cout << "opt_problem.number_of_constraints_.at(" << i
+                          << "): " << opt_problem.number_of_constraints().at(i) << std::endl;
+            }
+
+            // solve an optimization problem
+            std::cout << "Solve" << std::endl;
             // Solve the problem and put the result in solution
             solver.solve(solution, opt_problem);
 

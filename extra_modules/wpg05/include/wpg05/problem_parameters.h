@@ -37,8 +37,14 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
      ***************************************/
     /// @brief length of one time step
     double t_;
+    size_t sampling_time_ms_;
+    size_t subsampling_time_ms_;
+    size_t tds_sampling_time_ms_;
+
     /// @brief number of time steps in horizon
     size_t nHorizon_;
+    size_t preview_horizon_length_;
+
     /// @brief total number of iterations to reach endTime_
     size_t nIterations_;
     /// @brief End time of the control
@@ -121,6 +127,10 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     HUMOTO_CONFIG_SCALAR_(zetaZero)                    \
     HUMOTO_CONFIG_SCALAR_(zetaSpan)                    \
     HUMOTO_CONFIG_SCALAR_(t)                           \
+    HUMOTO_CONFIG_SCALAR_(preview_horizon_length)      \
+    HUMOTO_CONFIG_SCALAR_(sampling_time_ms)            \
+    HUMOTO_CONFIG_SCALAR_(subsampling_time_ms)         \
+    HUMOTO_CONFIG_SCALAR_(tds_sampling_time_ms)        \
     HUMOTO_CONFIG_SCALAR_(nHorizon)                    \
     HUMOTO_CONFIG_SCALAR_(endTime)                     \
     HUMOTO_CONFIG_COMPOUND_(comVelRef)                 \
@@ -204,6 +214,90 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
         leftStepsParameters_.push_back(std::vector<double>(l3, l3 + 5));
         rightStepsParameters_.push_back(std::vector<double>(r3, r3 + 5));
         leftStepsParameters_.push_back(std::vector<double>(l4, l4 + 5));
+    }
+
+    void print() const
+    {
+    std::cout << "g_: " << g_ << std::endl;
+    std::cout << "h_CoM_: " << h_CoM_ << std::endl;
+
+    /*****************************************
+     *  ZETA PARAMETERS FOR VERTICAL MOTION  *
+     *****************************************/
+    std::cout << "zetaZero_: " << zetaZero_ << std::endl;
+    std::cout << "zetaSpan_: " << zetaSpan_ << std::endl;
+
+    /***************************************
+     *  TIME PARAMETERS OF THE SIMULATION  *
+     ***************************************/
+    std::cout << "t_: " << t_ << std::endl;
+    std::cout << "sampling_time_ms_: " << sampling_time_ms_ << std::endl;
+    std::cout << "subsampling_time_ms_: " << subsampling_time_ms_ << std::endl;
+    std::cout << "tds_sampling_time_ms_: " << tds_sampling_time_ms_ << std::endl;
+
+    std::cout << "nHorizon_: " << nHorizon_ << std::endl;
+    std::cout << "preview_horizon_length_: " << preview_horizon_length_ << std::endl;
+
+    std::cout << "nIterations_: " << nIterations_ << std::endl;
+    std::cout << "endTime_: " << endTime_ << std::endl;
+
+    /******************************************
+     *  REFERENCE HEIGHT AND VELOCITY OF CoM  *
+     ******************************************/
+    std::cout << "comVelRef_: " << comVelRef_.transpose() << std::endl;
+    std::cout << "comHeightRef_: " << comHeightRef_ << std::endl;
+
+    /****************
+     *  STEP PLANS  *
+     ****************/
+    std::cout << "Left steps parameters:" << std::endl;
+    for(size_t i = 0; i < leftStepsParameters_.size(); ++i)
+    {
+      for(size_t j = 0; j < leftStepsParameters_.at(i).size(); ++j)
+        std::cout << leftStepsParameters_.at(i).at(j) << ", ";
+      std::cout << std::endl;
+    }
+    std::cout << "Right steps parameters:" << std::endl;
+    for(size_t i = 0; i < rightStepsParameters_.size(); ++i)
+    {
+      for(size_t j = 0; j < rightStepsParameters_.at(i).size(); ++j)
+        std::cout << rightStepsParameters_.at(i).at(j) << ", ";
+      std::cout << std::endl;
+    }
+
+    std::cout << "stepHeight_: " << stepHeight_ << std::endl;
+
+    /***********************
+     *  CONSTRAINTS GAINS  *
+     ***********************/
+    std::cout << "gainTaskCoPBounds_: " << gainTaskCoPBounds_ << std::endl;
+    std::cout << "gainTaskKinematicsPolygon_: " << gainTaskKinematicsPolygon_ << std::endl;
+    std::cout << "gainTaskCoMHeight_: " << gainTaskCoMHeight_ << std::endl;
+    std::cout << "gainTaskVelocity_: " << gainTaskVelocity_ << std::endl;
+    std::cout << "gainTaskMinJerk_: " << gainTaskMinJerk_ << std::endl;
+    std::cout << "gainTaskCoPPosRef_: " << gainTaskCoPPosRef_ << std::endl;
+
+    /***************************************************
+     *  KINEMATIC DIMENSIONS FOR RECTANGLE CONSTRAINT  *
+     ***************************************************/
+    std::cout << "kinematicLimitZmin_: " << kinematicLimitZmin_ << std::endl;
+    std::cout << "kinematicLimitZmax_: " << kinematicLimitZmax_ << std::endl;
+    std::cout << "kinematicLimitXSpan_: " << kinematicLimitXSpan_ << std::endl;
+    std::cout << "kinematicLimitYSpan_: " << kinematicLimitYSpan_ << std::endl;
+
+    /***********************************************
+     *  KINEMATIC PARAMETERS DESCRIBING THE ROBOT  *
+     ***********************************************/
+    std::cout << "soleToAnkle_: " << soleToAnkle_.transpose() << std::endl;
+    std::cout << "comToRightHip_: " << comToRightHip_.transpose() << std::endl;
+    std::cout << "comToLeftHip_: " << comToLeftHip_.transpose() << std::endl;
+    std::cout << "footXwidth_: " << footXwidth_ << std::endl;
+    std::cout << "footYwidth_: " << footYwidth_ << std::endl;
+
+    /*******************
+    *  MISCELLANEOUS  *
+    *******************/
+    std::cout << "verbose_: " << verbose_ << std::endl;
     }
 };
 }
