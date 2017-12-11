@@ -196,21 +196,21 @@ struct FootTraj
         return pos;
     }
 
-    void eval(humoto::rigidbody::RigidBodyState& foot_state, const double t) const
+    void eval(humoto::rigidbody::RigidBodyState& foot_state, const double time_s) const
     {
         //First we find the correct trajPiece for this time
         size_t index = 0;
-        while(!(trajPieces_[index].tBegin_ <= t && trajPieces_[index].tEnd_ > t))
+        while (!(trajPieces_[index].tBegin_ <= time_s && trajPieces_[index].tEnd_ > time_s))
         {
             index++;
         }
 
         //Then we compute the quantities through the polynomial3D
-        foot_state.position_ = trajPieces_[index].p_.getPositionAt(t);
+        foot_state.position_ = trajPieces_[index].p_.getPositionAt(time_s);
         std::cout << "foot_state.position_: " << foot_state.position_.transpose() << std::endl;
-        foot_state.velocity_ = trajPieces_[index].p_.getVelocityAt(t);
+        foot_state.velocity_ = trajPieces_[index].p_.getVelocityAt(time_s);
         std::cout << "foot_state.velocity_: " << foot_state.velocity_.transpose() << std::endl;
-        foot_state.acceleration_ = trajPieces_[index].p_.getAccelerationAt(t);
+        foot_state.acceleration_ = trajPieces_[index].p_.getAccelerationAt(time_s);
         std::cout << "foot_state.acceleration_: " << foot_state.acceleration_.transpose() << std::endl;
 
         foot_state.rpy_(humoto::AngleIndex::YAW) = 0;

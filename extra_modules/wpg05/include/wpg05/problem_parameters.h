@@ -139,6 +139,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     HUMOTO_CONFIG_COMPOUND_(rightStepsParameters)      \
     HUMOTO_CONFIG_SCALAR_(stepHeight)                  \
     HUMOTO_CONFIG_SCALAR_(gainTaskVelocity)            \
+    HUMOTO_CONFIG_SCALAR_(gainTaskCoMHeight)            \
     HUMOTO_CONFIG_SCALAR_(gainTaskCoPPosRef)           \
     HUMOTO_CONFIG_SCALAR_(gainTaskMinJerk)             \
     HUMOTO_CONFIG_SCALAR_(gainTaskKinematicsRectangle) \

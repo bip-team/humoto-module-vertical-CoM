@@ -27,7 +27,7 @@ class HUMOTO_LOCAL TaskCoMHeight : public humoto::TaskAB
     void setDefaults()
     {
         TaskAB::setDefaults();
-        setGain(100);
+        setGain(1);
     }
 
     /// @brief Finalizes the class initialization
@@ -37,7 +37,7 @@ class HUMOTO_LOCAL TaskCoMHeight : public humoto::TaskAB
     /// @brief Default constructor
     ///
     /// @param gain gain of the task
-    TaskCoMHeight(const double gain = 100) : TaskAB("TaskCoMHeight", gain) {}
+    TaskCoMHeight(const double gain = 1) : TaskAB("TaskCoMHeight", gain) {}
 
     /// @brief Forms the matrices A and b to represent the task
     ///
