@@ -58,7 +58,7 @@ ProblemParameters:
   endTime: 15
 
   comVelRef: [0.0, 0.0, 0.0]
-  comHeightRef: 0.75
+  comHeightRef: 0.65
 
   #  leftStepsParameters:
   #    - [ 0.0 ,  0.1 ,  0.0 ,  0.0 ,  200.3900000000000006 ]
@@ -97,16 +97,16 @@ ProblemParameters:
 
   gainTaskCoPBounds: 1
   gainTaskKinematicsPolygon: 1
-  gainTaskCoMHeight: 1
-  gainTaskVelocity: 1
+  gainTaskCoMHeight: 0
+  gainTaskVelocity: 0
   gainTaskMinJerk: 1
-  gainTaskCoPPosRef: 1
+  gainTaskCoPPosRef: 0
 
-  soleToAnkle: [0.0, 0.0, 0.1]
-  comToLeftHip: [0.0, 0.1, -0.1]
-  comToRightHip: [0.0, -0.1, -0.1]
-  footXwidth: 0.144
-  footYwidth: 0.08
+  soleToAnkle: [0.0, 0.0, 0.093]
+  comToLeftHip: [0.0, 0.088, -0.03]
+  comToRightHip: [0.0, -0.088, -0.03]
+  footXwidth: 0.224
+  footYwidth: 0.096
 
   verbose: 0
 

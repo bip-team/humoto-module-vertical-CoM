@@ -215,6 +215,17 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @brief Getter for velocity_selector
     const etools::SelectionMatrix& velocity_selector() const { return velocity_selector_; }
 
+    /// @brief Getter for A
+    const Eigen::MatrixXd& A() const { return A_; }
+    /// @brief Getter for B
+    const Eigen::MatrixXd& B() const { return B_; }
+    /// @brief Getter for C
+    const Eigen::MatrixXd& C() const { return C_; }
+    /// @brief Getter for D
+    const Eigen::MatrixXd& D() const { return D_; }
+    /// @brief Getter for E
+    const Eigen::MatrixXd& E() const { return E_; }
+
     /// @brief Getter for Uu
     const Eigen::MatrixXd& Uu() const { return Uu_; }
     /// @brief Getter for Ux

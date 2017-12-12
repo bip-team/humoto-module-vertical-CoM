@@ -61,6 +61,7 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAL
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
+      std::cout << "\nForm Kinematic task" << std::endl;
         Eigen::IOFormat fmt(5, 0, ", ", ",\n", "[", "]", "[", "]");
         // Downcast the control problem into a simpleMPC type
         const humoto::wpg05::MPCVerticalMotion &mpc =
@@ -105,6 +106,7 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAL
         A.noalias() = getGain() * ABlocks_ * (posSelector * mpc.Uu());
         b.noalias() =
             getGain() * (bBlocks_ - ABlocks_ * (posSelector * mpc.Ux() * mpc.currentState()));
+        std::cout << "form kinematic task DONE" << std::endl;
     }
 
     static void computeAndLogHighestFeasibleZ(const humoto::wpg05::MPCVerticalMotion &mpc,

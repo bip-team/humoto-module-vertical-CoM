@@ -70,12 +70,12 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
         zBoundsHigh_.resize(6 * mpc.getPreviewHorizonLength());
         zBoundsLow_.resize(6 * mpc.getPreviewHorizonLength());
 
-        if (mpc.pbParams().verbose_ > 0)
-        {
-            std::cout << "Form CoP Task:" << std::endl;
+        //if (mpc.pbParams().verbose_ > 0)
+        //{
+            std::cout << "\nForm CoP Task:" << std::endl;
             std::cout << "zetaMin = " << mpc.zetaMin() << ", zetaMax = " << mpc.zetaMax()
                       << std::endl;
-        }
+        //}
 
         for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
         {
@@ -95,11 +95,15 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
             zBoundsHigh_(6 * i + 5) = mpc.stepPlan().z()(mpc.currentStepIndex() + 1 + i) +
                                       mpc.zetaMax() * mpc.pbParams().g_;
         }
+        std::cout << "zBoundsLow_: " << zBoundsLow_.head(6).transpose() << std::endl;
+        std::cout << "zBoundsHigh_: " << zBoundsHigh_.head(6).transpose() << std::endl;
+        std::cout << "current CoP location: " << (mpc.C() * mpc.currentState()).transpose() << std::endl;
 
         // Compute the A, l and u matrices
         A.noalias() = getGain() * mpc.Ou();
         l.noalias() = getGain() * (-mpc.Ox() * mpc.currentState() + zBoundsLow_);
         u.noalias() = getGain() * (-mpc.Ox() * mpc.currentState() + zBoundsHigh_);
+        std::cout << "Form CoP Task DONE" << std::endl;
     };
 };
 }

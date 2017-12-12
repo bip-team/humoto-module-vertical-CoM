@@ -198,12 +198,19 @@ struct FootTraj
 
     void eval(humoto::rigidbody::RigidBodyState& foot_state, const double time_s) const
     {
+        std::cout << "FootTraj::eval" << std::endl;
+        std::cout << "time_s: " << time_s << std::endl;
         //First we find the correct trajPiece for this time
         size_t index = 0;
+        std::cout << "trajPieces_.size(): " << trajPieces_.size() << std::endl;
         while (!(trajPieces_[index].tBegin_ <= time_s && trajPieces_[index].tEnd_ > time_s))
         {
+            std::cout << "trajPieces_[index].tBegin_: "
+                      << trajPieces_[index].tBegin_ << std::endl;
+            std::cout << "trajPieces_[index].tEnd_: " << trajPieces_[index].tEnd_ << std::endl;
             index++;
         }
+        std::cout << "index: " << index << std::endl;
 
         //Then we compute the quantities through the polynomial3D
         foot_state.position_ = trajPieces_[index].p_.getPositionAt(time_s);
@@ -511,6 +518,7 @@ Polynomial3D StepPlan::computeFeetTrajectory(const Step& prevStep, const Step& n
 void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> steps,
                                          const double dt)
 {
+  std::cout << "StepPlan::computeFullFeetTrajectory" << std::endl;
     size_t iStep = 0;
     size_t iTimeStep = 0;
     double currentTime = 0.0;
@@ -525,7 +533,9 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
     footTraj.t_ = time;
     Polynomial3D p0;
     p0.setConstant(0, steps[iStep].pos());
+  std::cout << "footTraj.trajPieces_.size(): " << footTraj.trajPieces_.size() << std::endl;
     footTraj.trajPieces_.push_back(TrajPiece(p0, 0, steps.at(iStep).tMax()));
+  std::cout << "footTraj.trajPieces_.size(): " << footTraj.trajPieces_.size() << std::endl;
 
     while (currentTime < steps.at(iStep).tMax())
     {
@@ -545,6 +555,7 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
         Polynomial3D p = computeFeetTrajectory(steps.at(iStep), steps.at(iStep + 1), heightSteps_);
 
         footTraj.trajPieces_.push_back(TrajPiece(p, steps.at(iStep).tMax(), steps.at(iStep+1).tMin()));
+  std::cout << "footTraj.trajPieces_.size(): " << footTraj.trajPieces_.size() << std::endl;
 
         p.applyPolynomial(footTraj.x_.segment(iTimeStep, nTimeSteps), p.ax,
                           time.segment(iTimeStep, nTimeSteps), p.x0[0]);
@@ -563,6 +574,7 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
         Polynomial3D pConstant;
         pConstant.setConstant(steps.at(iStep + 1).tMin(), steps.at(iStep+1).pos());
         footTraj.trajPieces_.push_back(TrajPiece(pConstant, steps.at(iStep + 1).tMin(), steps.at(iStep + 1).tMax()));
+  std::cout << "footTraj.trajPieces_.size(): " << footTraj.trajPieces_.size() << std::endl;
 
         // Then the phase with foot on the ground
         while (currentTime < steps.at(iStep + 1).tMax())
@@ -613,7 +625,9 @@ void StepPlan::computePlan(std::vector<Step> leftSteps, std::vector<Step> rightS
     rightFoot_.resize(nTimeSteps + 1);
     leftFoot_.resize(nTimeSteps + 1);
     computeFullFeetTrajectory(rightFoot_, rightSteps, T_);
+  std::cout << "rightFoot_.trajPieces_.size(): " << rightFoot_.trajPieces_.size() << std::endl;
     computeFullFeetTrajectory(leftFoot_, leftSteps, T_);
+  std::cout << "leftFoot_.trajPieces_.size(): " << leftFoot_.trajPieces_.size() << std::endl;
 
     for (long iTimeStep = 0; iTimeStep < nTimeSteps; iTimeStep++)
     {

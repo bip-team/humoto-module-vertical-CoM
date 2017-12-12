@@ -61,6 +61,7 @@ class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
+      std::cout << "\nform CoP ref task" << std::endl;
         // Downcast the control problem into a MPCVerticalMotion type
         const humoto::wpg05::MPCVerticalMotion &mpc =
             dynamic_cast<const humoto::wpg05::MPCVerticalMotion &>(control_problem);
@@ -95,10 +96,12 @@ class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
             zRef_(4 * i + 2) = 0.5 * (xMin + xMax);
             zRef_(4 * i + 3) = 0.5 * (yMin + yMax);
         }
+        std::cout << "zRef_: " << zRef_.transpose() << std::endl;
 
         // Compute the A and b matrices
         A.noalias() = getGain() * xySelector_ * mpc.Ou();
         b.noalias() = getGain() * (-xySelector_ * mpc.Ox() * mpc.currentState() + zRef_);
+        std::cout << "form CoP ref task DONE" << std::endl;
     };
 };
 }

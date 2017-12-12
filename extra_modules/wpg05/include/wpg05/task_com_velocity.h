@@ -48,6 +48,7 @@ class HUMOTO_LOCAL TaskCoMVelocity : public humoto::TaskAB
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
+      std::cout << "\nform CoM Velocity task" << std::endl;
         // Downcast the control problem into a simpleMPC type
         const humoto::wpg05::MPCVerticalMotion &mpc =
             dynamic_cast<const humoto::wpg05::MPCVerticalMotion &>(control_problem);
@@ -64,11 +65,14 @@ class HUMOTO_LOCAL TaskCoMVelocity : public humoto::TaskAB
         {
             cvel_ref.segment(i * 3, 3) = mpc.pbParams().comVelRef_;
         }
+        std::cout << "mpc.getCoMState().velocity_: " << mpc.getCoMState().velocity_.transpose() << std::endl;
+        std::cout << "cvel_ref: " << cvel_ref.transpose() << std::endl;
 
         // Compute the A and b matrices
         A.noalias() = getGain() * (mpc.velocity_selector() * mpc.Uu());
         b.noalias() =
             -getGain() * (mpc.velocity_selector() * mpc.Ux() * mpc.currentState() - cvel_ref);
+        std::cout << "form CoM Velocity task DONE" << std::endl;
     };
 };
 }
