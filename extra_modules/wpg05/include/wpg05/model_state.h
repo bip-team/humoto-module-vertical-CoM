@@ -83,6 +83,7 @@ class HUMOTO_LOCAL ModelState : public humoto::ModelState,
         return currentState;
     }
 
+    /// @brief updates the position, velocity and acceleration fields from a 9-vector
     void updateFromVector(const etools::Vector9 &vec)
     {
         position_(0) = vec(0);

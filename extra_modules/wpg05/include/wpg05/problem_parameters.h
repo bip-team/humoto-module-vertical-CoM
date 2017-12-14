@@ -42,7 +42,6 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     size_t tds_sampling_time_ms_;
 
     /// @brief number of time steps in horizon
-    size_t nHorizon_;
     size_t preview_horizon_length_;
 
     /// @brief total number of iterations to reach endTime_
@@ -131,7 +130,6 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     HUMOTO_CONFIG_SCALAR_(sampling_time_ms)            \
     HUMOTO_CONFIG_SCALAR_(subsampling_time_ms)         \
     HUMOTO_CONFIG_SCALAR_(tds_sampling_time_ms)        \
-    HUMOTO_CONFIG_SCALAR_(nHorizon)                    \
     HUMOTO_CONFIG_SCALAR_(endTime)                     \
     HUMOTO_CONFIG_COMPOUND_(comVelRef)                 \
     HUMOTO_CONFIG_SCALAR_(comHeightRef)                \
@@ -175,7 +173,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
         zetaZero_ = 0;
         zetaSpan_ = 20;
         t_ = 0.005;
-        nHorizon_ = 100;
+        preview_horizon_length_ = 100;
         endTime_ = 10;
         stepHeight_ = 0.2;
         comVelRef_(0) = 0.1;
@@ -236,7 +234,6 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     std::cout << "subsampling_time_ms_: " << subsampling_time_ms_ << std::endl;
     std::cout << "tds_sampling_time_ms_: " << tds_sampling_time_ms_ << std::endl;
 
-    std::cout << "nHorizon_: " << nHorizon_ << std::endl;
     std::cout << "preview_horizon_length_: " << preview_horizon_length_ << std::endl;
 
     std::cout << "nIterations_: " << nIterations_ << std::endl;

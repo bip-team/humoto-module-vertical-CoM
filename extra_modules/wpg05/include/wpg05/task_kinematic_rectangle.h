@@ -89,11 +89,11 @@ void TaskKinematicsRectangle::form(const humoto::SolutionStructure &sol_structur
     Eigen::VectorXd &ub = getUpperBounds();
     Eigen::VectorXd &lb = getLowerBounds();
 
-    long nHorizon = mpc.getPreviewHorizonLength();
+    long preview_horizon_length = mpc.getPreviewHorizonLength();
     // Setup the CoM bounds along the preview horizon
-    if (lbCoM_.size() != nHorizon * 3) lbCoM_.resize(3 * nHorizon);
-    if (ubCoM_.size() != nHorizon * 3) ubCoM_.resize(3 * nHorizon);
-    for (long i = 0; i < nHorizon; ++i)
+    if (lbCoM_.size() != preview_horizon_length * 3) lbCoM_.resize(3 * preview_horizon_length);
+    if (ubCoM_.size() != preview_horizon_length * 3) ubCoM_.resize(3 * preview_horizon_length);
+    for (long i = 0; i < preview_horizon_length; ++i)
     {
         double x = 0.5 * (mpc.stepPlan().xMin()(mpc.currentStepIndex() + i) +
                           mpc.stepPlan().xMax()(mpc.currentStepIndex() + i));

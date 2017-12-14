@@ -20,7 +20,7 @@ namespace humoto
 {
 namespace wpg05
 {
-/// @brief Class used to log and display the CoM and CoP history
+/// @brief Class used to log and display data from the MPC, in particular, the CoM and CoP history
 class HUMOTO_LOCAL Logger
 {
   public:
@@ -64,8 +64,10 @@ class HUMOTO_LOCAL Logger
         addStateAndControl(state, control, zeta, zetaMin, zetaMax);
     }
 
+    /// @brief Adds a single control to the history
     void addControl(const etools::Vector3 &control) { jerksCoM_.push_back(control); }
 
+    /// @brief Adds a single state to the history, with default values for zetaMin and zetaMax
     void addState(const etools::Vector3 &position, const etools::Vector3 &velocity,
                   const etools::Vector3 &acceleration, double zeta)
     {
@@ -74,6 +76,7 @@ class HUMOTO_LOCAL Logger
         addState(position, velocity, acceleration, zeta, zetaMin, zetaMax);
     }
 
+    /// @brief Adds a single state to the history, with custom values for zetaMin and zetaMax
     void addState(const etools::Vector3 &position, const etools::Vector3 &velocity,
                   const etools::Vector3 &acceleration, double zeta, double zetaMin, double zetaMax)
     {
@@ -97,6 +100,7 @@ class HUMOTO_LOCAL Logger
         positionsCoPMax_.push_back(copMax);
     }
 
+    /// @brief proxy to add state and control at once
     void addStateAndControl(const ModelState& state, const etools::Vector3 &control,
                             double zeta, double zetaMin, double zetaMax)
     {
@@ -104,6 +108,7 @@ class HUMOTO_LOCAL Logger
         addControl(control);
     }
 
+    /// @brief proxy to add state and control at once
     void addStateAndControl(const etools::Vector9 &state, const etools::Vector3 &control,
                             double zeta, double zetaMin, double zetaMax)
     {
@@ -115,14 +120,22 @@ class HUMOTO_LOCAL Logger
         addControl(control);
     }
 
+    /// @brief adds the highest feasible Z at time index
     void addHighestFeasibleZ(double zMax, long index) const { highestFeasibleZ_[index] = zMax; }
 
+    /// @brief converts positionCoM to Matrix form
     Eigen::MatrixXd getPositionsAsMatrix() const { return toMatrix(positionsCoM_); }
+    /// @brief converts VelocityCoM to Matrix form
     Eigen::MatrixXd getVelocitiesAsMatrix() const { return toMatrix(velocitiesCoM_); }
+    /// @brief converts accelerationCoM to Matrix form
     Eigen::MatrixXd getAccelerationsAsMatrix() const { return toMatrix(accelerationsCoM_); }
+    /// @brief converts JerkCoM to Matrix form
     Eigen::MatrixXd getJerksAsMatrix() const { return toMatrix(jerksCoM_); }
+    /// @brief converts CoPMin to Matrix form
     Eigen::MatrixXd getCoPMinsAsMatrix() const { return toMatrix(positionsCoPMin_); }
+    /// @brief converts CoP to Matrix form
     Eigen::MatrixXd getCoPsAsMatrix() const { return toMatrix(positionsCoP_); }
+    /// @brief converts CoPMax to Matrix form
     Eigen::MatrixXd getCoPMaxsAsMatrix() const { return toMatrix(positionsCoPMax_); }
 
     /// @brief Transforms a list of vector3 into a matrix
@@ -137,7 +150,8 @@ class HUMOTO_LOCAL Logger
         for (size_t i = 0; i < vec.size(); ++i) mat.row(i) << vec[i].transpose();
         return mat;
     }
-    Eigen::MatrixXd toVector(const std::vector<double> &vec) const
+    /// @brief converts an std::vector<double> into a Eigen::VectorXd
+    Eigen::VectorXd toVector(const std::vector<double> &vec) const
     {
         Eigen::VectorXd mat;
         mat.resize(vec.size());
@@ -161,6 +175,7 @@ class HUMOTO_LOCAL Logger
         std::cout << toMatrix(jerksCoM_) << std::endl;
     }
 
+    /// @brief log all the gathered data into a python file that will allow to display it
     void logEverything(std::ofstream &logFile) const
     {
         Eigen::IOFormat cleanFmt(4, 0, ", ", "\n", "[", "]");
@@ -245,6 +260,7 @@ class HUMOTO_LOCAL Logger
         logFile << "]\n";
     }
 
+    /// @brief plots the feet trajectories
     void plotTrajectoryFoot(std::ofstream &logFile) const
     {
         /**************************
@@ -256,6 +272,8 @@ class HUMOTO_LOCAL Logger
         logFile << "plt.savefig('latest_test/trajFoot.pdf', format='pdf', dpi=1000)\n";
         logFile << "plt.show()\n";
     }
+
+    /// @brief plots the evolutions of zetas
     void plotZetas(std::ofstream& logFile) const
     {
       /****************
@@ -268,6 +286,8 @@ class HUMOTO_LOCAL Logger
       logFile << "plt.savefig('latest_test/zetas.pdf', format='pdf', dpi=1000)\n";
       logFile << "plt.show()\n";
     }
+
+    /// @brief plots the evolutions of CoP and its limits in time in the directions x, y and z separately
     void plotXYZ(std::ofstream &logFile) const
     {
         /***********************************
@@ -308,6 +328,8 @@ class HUMOTO_LOCAL Logger
         logFile << "plt.savefig('latest_test/xyz.pdf', format='pdf', dpi=1000)\n";
         logFile << "plt.show()\n";
     }
+
+    /// @brief plots the 3D trajectories of CoP, CoM and feet
     void plot3Dtraj(std::ofstream &logFile) const
     {
         /************************************
@@ -330,6 +352,7 @@ class HUMOTO_LOCAL Logger
         logFile << "plt.show()\n";
     }
 
+    /// @brief plots the evolutions of CoP and CoM in the (x,y), (y,z) and (x,z) planes
     void plotPlaneProjectionTraj(std::ofstream &logFile) const
     {
         /****************************************

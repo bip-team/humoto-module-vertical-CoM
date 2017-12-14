@@ -21,6 +21,11 @@ namespace humoto
 namespace wpg05
 {
 
+/// @brief structure describing a 3D trajectory through three polynomials of degree 7
+/// The polynomials are as follow:
+/// x(t) = ax[0] + ax[1]*t + ax[2]*t^2 + ax[3]*t^3 + ax[4]*t^4 + ax[5]*t^5 + ax[6]*t^6
+/// y(t) = ay[0] + ay[1]*t + ay[2]*t^2 + ay[3]*t^3 + ay[4]*t^4 + ay[5]*t^5 + ay[6]*t^6
+/// z(t) = az[0] + az[1]*t + az[2]*t^2 + az[3]*t^3 + az[4]*t^4 + az[5]*t^5 + az[6]*t^6
 struct Polynomial3D
 {
     double t0;
@@ -29,6 +34,7 @@ struct Polynomial3D
     etools::Vector7 ay;
     etools::Vector7 az;
 
+    /// @brief set the polynomial to be constant at position pos from time tBegin
     void setConstant(double tBegin, etools::Vector3 pos)
     {
       t0 = tBegin;
@@ -38,6 +44,7 @@ struct Polynomial3D
       az.setZero();
     }
 
+    /// @brief Write the python code to plot the polynomial between times T0 and T1
     void plotBetween(double T0, double T1) const
     {
         Eigen::VectorXd t = Eigen::VectorXd::LinSpaced(100, T0, T1);
@@ -89,6 +96,7 @@ struct Polynomial3D
         res = M * coeff + Eigen::VectorXd::Constant(t.size(), x0);
     }
 
+    /// @brief computes the position/value of polynomial at time t
     Eigen::Vector3d getPositionAt(double t) const
     {
       etools::Vector7 variables;
@@ -104,6 +112,8 @@ struct Polynomial3D
       Eigen::Vector3d res(ax.dot(variables), ay.dot(variables), az.dot(variables));
       return res;
     }
+
+    /// @brief returns the coefficients of the derivative of the polynomial described by A
     etools::Vector6 velCoeff(const etools::Vector7& A) const
     {
       etools::Vector6 diffA;
@@ -116,6 +126,7 @@ struct Polynomial3D
       return diffA;
     }
 
+    /// @brief computes the velocity/derivative of polynomial at time t
     Eigen::Vector3d getVelocityAt(double t) const
     {
       etools::Vector6 variables;
@@ -134,6 +145,7 @@ struct Polynomial3D
       return res;
     }
 
+    /// @brief returns the coefficients of the second derivative of the polynomial described by A
     etools::Vector5 accCoeff(const etools::Vector7& A) const
     {
       etools::Vector5 ddiffA;
@@ -145,6 +157,7 @@ struct Polynomial3D
       return ddiffA;
     }
 
+    /// @brief computes the acceleration/second derivative of polynomial at time t
     Eigen::Vector3d getAccelerationAt(double t) const
     {
       etools::Vector5 variables;
@@ -198,27 +211,17 @@ struct FootTraj
 
     void eval(humoto::rigidbody::RigidBodyState& foot_state, const double time_s) const
     {
-        std::cout << "FootTraj::eval" << std::endl;
-        std::cout << "time_s: " << time_s << std::endl;
         //First we find the correct trajPiece for this time
         size_t index = 0;
-        std::cout << "trajPieces_.size(): " << trajPieces_.size() << std::endl;
         while (!(trajPieces_[index].tBegin_ <= time_s && trajPieces_[index].tEnd_ > time_s))
         {
-            std::cout << "trajPieces_[index].tBegin_: "
-                      << trajPieces_[index].tBegin_ << std::endl;
-            std::cout << "trajPieces_[index].tEnd_: " << trajPieces_[index].tEnd_ << std::endl;
             index++;
         }
-        std::cout << "index: " << index << std::endl;
 
         //Then we compute the quantities through the polynomial3D
         foot_state.position_ = trajPieces_[index].p_.getPositionAt(time_s);
-        std::cout << "foot_state.position_: " << foot_state.position_.transpose() << std::endl;
         foot_state.velocity_ = trajPieces_[index].p_.getVelocityAt(time_s);
-        std::cout << "foot_state.velocity_: " << foot_state.velocity_.transpose() << std::endl;
         foot_state.acceleration_ = trajPieces_[index].p_.getAccelerationAt(time_s);
-        std::cout << "foot_state.acceleration_: " << foot_state.acceleration_.transpose() << std::endl;
 
         foot_state.rpy_(humoto::AngleIndex::YAW) = 0;
         foot_state.angular_velocity_(humoto::AngleIndex::YAW) = 0;

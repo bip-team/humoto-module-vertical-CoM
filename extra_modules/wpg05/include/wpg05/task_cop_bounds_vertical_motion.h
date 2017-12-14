@@ -95,9 +95,9 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
             zBoundsHigh_(6 * i + 5) = mpc.stepPlan().z()(mpc.currentStepIndex() + 1 + i) +
                                       mpc.zetaMax() * mpc.pbParams().g_;
         }
-        std::cout << "zBoundsLow_: " << zBoundsLow_.head(6).transpose() << std::endl;
-        std::cout << "zBoundsHigh_: " << zBoundsHigh_.head(6).transpose() << std::endl;
-        std::cout << "current CoP location: " << (mpc.C() * mpc.currentState()).transpose() << std::endl;
+        //std::cout << "zBoundsLow_: " << zBoundsLow_.head(6).transpose() << std::endl;
+        //std::cout << "zBoundsHigh_: " << zBoundsHigh_.head(6).transpose() << std::endl;
+        //std::cout << "current CoP location: " << (mpc.C() * mpc.currentState()).transpose() << std::endl;
 
         // Compute the A, l and u matrices
         A.noalias() = getGain() * mpc.Ou();

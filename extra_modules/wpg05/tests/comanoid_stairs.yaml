@@ -50,7 +50,7 @@ ProblemParameters:
   zetaSpan: 0.08
   t: 0.1
   endTime: 15
-  nHorizon: 15
+  preview_horizon_length: 15
   comVelRef: [0.4, 0.0, 0.0]
   comHeightRef: 1.0
 

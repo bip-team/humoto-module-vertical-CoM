@@ -40,8 +40,7 @@ SolverParameters:
     dropIneqConPriority: 1
 
 ProblemParameters:
-  g: 9.81
-  h_CoM: 0.8
+  verbose: 0
 
   zetaZero: 0.075
   zetaSpan: 0.05
@@ -51,19 +50,31 @@ ProblemParameters:
   subsampling_time_ms: 100
   tds_sampling_time_ms: 100
 
-  nHorizon: 20
-  preview_horizon_length: 20
+  preview_horizon_length: 10
 
   nIteration: 150
   endTime: 15
 
   comVelRef: [0.0, 0.0, 0.0]
-  comHeightRef: 0.65
+  comHeightRef: 0.75
 
-  #  leftStepsParameters:
-  #    - [ 0.0 ,  0.1 ,  0.0 ,  0.0 ,  200.3900000000000006 ]
-  #  rightStepsParameters:
-  #    - [ 0.0 ,  -0.1 ,  0.0 ,  0.0 ,  200.59 ]
+  gainTaskCoPBounds: 1
+  gainTaskKinematicsPolygon: 1
+  gainTaskCoMHeight: 1
+  gainTaskVelocity: 1
+  gainTaskMinJerk: 1
+  gainTaskCoPPosRef: 1
+
+  soleToAnkle: [0.0, 0.0, 0.093]
+  comToLeftHip: [0.0, 0.088, -0.03]
+  comToRightHip: [0.0, -0.088, -0.03]
+  footXwidth: 0.2
+  footYwidth: 0.1
+
+  #leftStepsParameters:
+  #  - [ 0.0 ,  0.07845 ,  0.0 ,  0.0 ,  200.3900000000000006 ]
+  #rightStepsParameters:
+  #  - [ 0.0 ,  -0.07845 ,  0.0 ,  0.0 ,  200.59 ]
   #leftStepsParameters:
   #  - [ 0.0 ,  0.1 ,  0.0 ,  0.0 ,  2.3900000000000006 ]
   #  - [ 0.2 ,  0.1 ,  0.0 ,  3.11 ,  3.99 ]
@@ -93,24 +104,9 @@ ProblemParameters:
     - [ 0.0 ,  -0.07845 ,  0.0 ,  7.109999999999999 ,  7.989999999999999 ]
     - [ 0.0 ,  -0.07845 ,  0.0 ,  8.709999999999999 ,  100.0 ]
 
-  stepHeight: 0.05
-
-  gainTaskCoPBounds: 1
-  gainTaskKinematicsPolygon: 1
-  gainTaskCoMHeight: 0
-  gainTaskVelocity: 0
-  gainTaskMinJerk: 1
-  gainTaskCoPPosRef: 0
-
-  soleToAnkle: [0.0, 0.0, 0.093]
-  comToLeftHip: [0.0, 0.088, -0.03]
-  comToRightHip: [0.0, -0.088, -0.03]
-  footXwidth: 0.224
-  footYwidth: 0.096
-
-  verbose: 0
+  stepHeight: 0.10
 
 ModelState:
-  position: [0.0, 0.0, 0.75]
+  position: [0.0, 0.0, 0.7]
   velocity: [0.0, 0.0, 0.0]
   acceleration: [0.0, 0.0, 0.0]

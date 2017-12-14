@@ -206,7 +206,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         computeD();
         computeE();
         // condense the A, B, D, E matrices to get the Ux, Uu, Ox and Ou matrices
-        condenseTimeInvariant(Ux_, Uu_, pb_params_.nHorizon_, A_, B_);
+        condenseTimeInvariant(Ux_, Uu_, pb_params_.preview_horizon_length_, A_, B_);
         condenseOutput(Ox_, Ou_, D_, E_, Ux_, Uu_);
     }
 
@@ -216,15 +216,15 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     const etools::SelectionMatrix& velocity_selector() const { return velocity_selector_; }
 
     /// @brief Getter for A
-    const Eigen::MatrixXd& A() const { return A_; }
+    const etools::Matrix9& A() const { return A_; }
     /// @brief Getter for B
-    const Eigen::MatrixXd& B() const { return B_; }
+    const etools::Matrix9x3& B() const { return B_; }
     /// @brief Getter for C
-    const Eigen::MatrixXd& C() const { return C_; }
+    const etools::Matrix6x9& C() const { return C_; }
     /// @brief Getter for D
-    const Eigen::MatrixXd& D() const { return D_; }
+    const etools::Matrix6x9& D() const { return D_; }
     /// @brief Getter for E
-    const Eigen::MatrixXd& E() const { return E_; }
+    const etools::Matrix6x3& E() const { return E_; }
 
     /// @brief Getter for Uu
     const Eigen::MatrixXd& Uu() const { return Uu_; }
@@ -238,6 +238,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @brief Getter for currentState
     const etools::Vector9& currentState() const { return current_state_; }
 
+    /// @brief returns the CoM State as a PointMassState
     humoto::rigidbody::PointMassState getCoMState() const
     {
       ModelState ms(current_state_);
@@ -275,7 +276,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
            std::cout << "MPC.update" << std::endl;
         sol_structure_.reset();
         // Add a variable of size 3*n called JERK_VARIABLE_ID to the structure of the solution
-        sol_structure_.addSolutionPart("JERK_VARIABLE_ID", problem_parameters.nHorizon_ * 3);
+        sol_structure_.addSolutionPart("JERK_VARIABLE_ID", problem_parameters.preview_horizon_length_ * 3);
 
         current_state_ = model.state_.getStateVector();
 
@@ -335,7 +336,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     }
 
     /// @brief Getter for PreviewHorizonLength
-    size_t getPreviewHorizonLength() const { return pb_params_.nHorizon_; }
+    size_t getPreviewHorizonLength() const { return pb_params_.preview_horizon_length_; }
     /// @brief Getter for currentStepIndex
     size_t currentStepIndex() const { return current_step_index_; }
 

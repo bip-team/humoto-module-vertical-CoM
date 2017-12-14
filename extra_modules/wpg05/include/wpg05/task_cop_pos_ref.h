@@ -70,22 +70,22 @@ class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
         Eigen::MatrixXd &A = getA();
         Eigen::VectorXd &b = getB();
 
-        long nHorizon = mpc.getPreviewHorizonLength();
+        long preview_horizon_length = mpc.getPreviewHorizonLength();
         // Compute the full Selector matrix only once
-        if (xySelector_.rows() != 4 * nHorizon || xySelector_.cols() != 6 * nHorizon)
+        if (xySelector_.rows() != 4 * preview_horizon_length || xySelector_.cols() != 6 * preview_horizon_length)
         {
-            xySelector_.resize(4 * nHorizon, 6 * nHorizon);
+            xySelector_.resize(4 * preview_horizon_length, 6 * preview_horizon_length);
             xySelector_.setZero();
-            for (long i = 0; i < nHorizon; ++i)
+            for (long i = 0; i < preview_horizon_length; ++i)
             {
                 xySelector_.block(4 * i, 6 * i, 4, 6) = xySelectorBlock_;
             }
         }
 
         // Setup the reference trajectory along the preview horizon (it is the middle of the bounds)
-        if (zRef_.size() != 4 * nHorizon) zRef_.resize(4 * nHorizon);
+        if (zRef_.size() != 4 * preview_horizon_length) zRef_.resize(4 * preview_horizon_length);
 
-        for (long i = 0; i < nHorizon; ++i)
+        for (long i = 0; i < preview_horizon_length; ++i)
         {
             double xMin = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
             double xMax = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
