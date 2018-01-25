@@ -243,6 +243,7 @@ namespace humoto
                 Eigen::MatrixXd                 s_;
 
                 etools::SelectionMatrix         velocity_selector_;
+                etools::SelectionMatrix         position_selector_;
 
                 Eigen::MatrixXd                 Sdz_;
                 Eigen::MatrixXd                 sdz_;
@@ -258,7 +259,7 @@ namespace humoto
                 /**
                  * @brief Constructor
                  */
-                MPCforWPG() : velocity_selector_(3,1)
+                MPCforWPG() : velocity_selector_(3,1), position_selector_  (3,0)
                 {
                     solution_is_parsed_ = false;
                 }
@@ -270,7 +271,8 @@ namespace humoto
                  * @param[in] mpc_parameters parameters of the MPC
                  */
                 explicit MPCforWPG(const humoto::wpg04::MPCParameters &mpc_parameters)
-                    : velocity_selector_(3,1)
+                    : velocity_selector_(3,1),
+                      position_selector_  (3,0)
                 {
                     solution_is_parsed_ = false;
                     setParameters(mpc_parameters);
@@ -656,4 +658,3 @@ namespace humoto
         };
     }
 }
-

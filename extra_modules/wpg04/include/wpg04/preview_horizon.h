@@ -22,6 +22,8 @@ namespace humoto
         {
             public:
                 etools::Vector2 cvel_ref_;
+                etools::Vector2 cpos_ref_;
+
                 double           theta_;
 
                 etools::Matrix2 rotation_;
@@ -43,6 +45,8 @@ namespace humoto
                     step_height_ = 0.0;
 
                     etools::unsetMatrix(cvel_ref_);
+                    etools::unsetMatrix(cpos_ref_);
+
                     etools::unsetMatrix(rotation_);
                     etools::unsetMatrix(R_cvel_ref_);
 
@@ -271,11 +275,15 @@ namespace humoto
                     case humoto::walking::StanceType::LSS:
                         state.theta_    = lss_theta;
                         state.cvel_ref_ = walk_parameters.com_velocity_;
+                        state.cpos_ref_ = walk_parameters.com_position_;
+
                         break;
 
                     case humoto::walking::StanceType::RSS:
                         state.theta_    = rss_theta;
                         state.cvel_ref_ = walk_parameters.com_velocity_;
+                        state.cpos_ref_ = walk_parameters.com_position_;
+
                         break;
 
                     case humoto::walking::StanceType::DS:
@@ -283,10 +291,14 @@ namespace humoto
                         if (state.subtype_ == humoto::walking::StanceSubType::FIRST)
                         {
                             state.cvel_ref_ = walk_parameters.first_stance_com_velocity_;
+                            state.cpos_ref_ = walk_parameters.com_position_;
+
                         }
                         else if(state.subtype_ == humoto::walking::StanceSubType::LAST)
                         {
                             state.cvel_ref_ = walk_parameters.last_stance_com_velocity_;
+                            state.cpos_ref_ = walk_parameters.com_position_;
+
                         }
                         else
                         {
@@ -296,7 +308,10 @@ namespace humoto
 
                     case humoto::walking::StanceType::TDS:
                         state.cvel_ref_ = walk_parameters.com_velocity_;
+                        state.cpos_ref_ = walk_parameters.com_position_;
+
                         state.theta_ = ds_theta;
+
                         if((stances.at(i + 1).type_ == humoto::walking::StanceType::RSS) &&
                            (state.previous_nontds_stance_type_ != humoto::walking::StanceType::DS))
                         {
@@ -407,6 +422,8 @@ namespace humoto
 
                 PreviewHorizonInterval  interval;
                 interval.cvel_ref_    = state.R_cvel_ref_;
+                state.cpos_ref_       = walk_parameters.com_position_;
+
                 interval.com_height_  = model.getCoMHeight();
                 interval.omega_       = model.getOmega(interval.com_height_);
 

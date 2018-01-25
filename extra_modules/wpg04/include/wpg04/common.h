@@ -26,6 +26,7 @@ namespace humoto
             #define HUMOTO_CONFIG_CONSTRUCTOR WalkParameters
             #define HUMOTO_CONFIG_ENTRIES \
                 HUMOTO_CONFIG_COMPOUND_(com_velocity)\
+                HUMOTO_CONFIG_COMPOUND_(com_position)\
                 HUMOTO_CONFIG_COMPOUND_(first_stance_com_velocity)\
                 HUMOTO_CONFIG_COMPOUND_(last_stance_com_velocity)\
                 HUMOTO_CONFIG_SCALAR_(step_height)\
@@ -37,6 +38,7 @@ namespace humoto
 
             public:
                 etools::Vector2    com_velocity_;
+                etools::Vector2    com_position_;
                 etools::Vector2    first_stance_com_velocity_;
                 etools::Vector2    last_stance_com_velocity_;
                 std::vector<std::vector<double> >  step_sequence_;
@@ -67,8 +69,6 @@ namespace humoto
                     step_height_                = 0.07;
                     theta_increment_            = 0.0;
 
-                    double zero[] = {0, 0, 0};
-                    step_sequence_.push_back(std::vector<double>(zero, zero+3));
 
                     humoto::walking::StanceFSMParameters::setDefaults();
                 }
@@ -205,4 +205,3 @@ namespace humoto
         };
     }
 }
-
