@@ -87,6 +87,8 @@ namespace humoto
                     logger.log(LogEntryName(subname).add("step_height"), step_height_);
 
                     logger.log(LogEntryName(subname).add("cvel_ref")  , cvel_ref_);
+                    logger.log(LogEntryName(subname).add("cpos_ref")  , cpos_ref_);
+
                     logger.log(LogEntryName(subname).add("rotation")  , rotation_);
                     logger.log(LogEntryName(subname).add("R_cvel_ref"), R_cvel_ref_);
                     logger.log(LogEntryName(subname).add("fd_bounds") , fd_bounds_);
@@ -105,7 +107,10 @@ namespace humoto
         {
             public:
                 std::size_t state_index_;       /// in TDS points to the next SS
+
                 etools::Vector2 cvel_ref_;
+                etools::Vector2 cpos_ref_;
+
                 double com_height_;
                 double omega_;
                 double T_;
@@ -131,6 +136,7 @@ namespace humoto
                     logger.log(LogEntryName(subname).add("omega")       , omega_      );
                     logger.log(LogEntryName(subname).add("T")           , T_          );
                     logger.log(LogEntryName(subname).add("cvel_ref")    , cvel_ref_   );
+                    logger.log(LogEntryName(subname).add("cpos_ref")    , cpos_ref_   );
                 }
         };
 
@@ -251,16 +257,21 @@ namespace humoto
 
             walk_states_.resize(stances.size());
 
-            const std::vector<double> zero = {0, 0, 0};
             std::vector<std::vector<double> > steps;
-            steps.push_back(zero);
 
-            for(std::size_t i = 1; i <= walk_parameters.step_sequence_.size()-1; i++)
+
+            if ( !walk_parameters.step_sequence_.empty() )
             {
-                std::vector<double> o = walk_parameters.step_sequence_[i];
-                std::vector<double> p = walk_parameters.step_sequence_[i-1];
-                std::vector<double> stp = {o[0] - p[0], o[1] - p[1], o[2] - p[2]};
-                steps.push_back(stp);
+              const std::vector<double> zero = {0, 0, 0};
+              steps.push_back(zero);
+
+              for(std::size_t i = 1; i <= walk_parameters.step_sequence_.size()-1; i++)
+              {
+                  std::vector<double> o = walk_parameters.step_sequence_[i];
+                  std::vector<double> p = walk_parameters.step_sequence_[i-1];
+                  std::vector<double> stp = {o[0] - p[0], o[1] - p[1], o[2] - p[2]};
+                  steps.push_back(stp);
+              }
             }
 
             std::size_t step = 0;
@@ -348,13 +359,19 @@ namespace humoto
                 state.R_cvel_ref_.noalias()  = state.rotation_ * state.cvel_ref_;
                 state.step_height_ = 0.;
 
+
                 if (humoto::walking::StanceType::TDS != state.type_)
                 {
-                    std::vector<std::vector<double> > previewed_steps;
+
                     humoto::wpg04::WalkParameters wp;
 
-                    previewed_steps.push_back(steps[step]);
-                    wp.step_sequence_.assign(previewed_steps.begin(), previewed_steps.end());
+                    if ( !walk_parameters.step_sequence_.empty() )
+                    {
+                        std::vector<std::vector<double> > previewed_steps;
+                        previewed_steps.push_back(steps[step]);
+                        wp.step_sequence_.assign(previewed_steps.begin(), previewed_steps.end());
+                    }
+
                     getConstraints(state, model, wp);
 
                     step++;
@@ -422,7 +439,8 @@ namespace humoto
 
                 PreviewHorizonInterval  interval;
                 interval.cvel_ref_    = state.R_cvel_ref_;
-                state.cpos_ref_       = walk_parameters.com_position_;
+                interval.cpos_ref_    = walk_parameters.com_position_;
+
 
                 interval.com_height_  = model.getCoMHeight();
                 interval.omega_       = model.getOmega(interval.com_height_);
@@ -517,7 +535,7 @@ namespace humoto
             }
             else
             {
-                if (walk_parameters.step_sequence_.size() > 0)
+                if ( !walk_parameters.step_sequence_.empty() )
                 {
                     state.fd_bounds_ <<
                         walk_parameters.step_sequence_[0][0], walk_parameters.step_sequence_[0][0],
@@ -525,6 +543,7 @@ namespace humoto
                 }
                 else
                 {
+
                     switch(state.type_)
                     {
                         case humoto::walking::StanceType::LSS:
@@ -576,6 +595,7 @@ namespace humoto
                             HUMOTO_THROW_MSG("unexpected support type");
                             break;
                     }
+
                 }
             }
 

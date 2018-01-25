@@ -64,6 +64,8 @@ namespace humoto
                 void setDefaults()
                 {
                     com_velocity_               << 0.2, 0.;
+                    com_position_               << 0., 0.;
+                    
                     first_stance_com_velocity_  << 0.2, 0.;
                     last_stance_com_velocity_   << 0.,  0.;
                     step_height_                = 0.07;
