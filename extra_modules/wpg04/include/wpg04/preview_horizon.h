@@ -183,7 +183,6 @@ namespace humoto
                     return (walk_states_[state_index].fd_bounds_);
                 }
 
-
                 /**
                  * @brief Get orientation of the support corresponding to the given interval
                  *
@@ -214,8 +213,8 @@ namespace humoto
 
             private:
                 void getConstraints(humoto::wpg04::WalkState        &state,
-                                    const Model                     &model);
-
+                                    const Model                     &model,
+                                    const WalkParameters            &walk_parameters);
 
                 void previewStates( const Model                                     &model,
                                     const humoto::walking::StanceFiniteStateMachine &stance_fsm,
@@ -247,6 +246,21 @@ namespace humoto
             double ds_theta  = (lss_theta + rss_theta) / 2.;
 
             walk_states_.resize(stances.size());
+
+            const std::vector<double> zero = {0, 0, 0};
+            std::vector<std::vector<double> > steps;
+            steps.push_back(zero);
+
+            for(std::size_t i = 1; i <= walk_parameters.step_sequence_.size()-1; i++)
+            {
+                std::vector<double> o = walk_parameters.step_sequence_[i];
+                std::vector<double> p = walk_parameters.step_sequence_[i-1];
+                std::vector<double> stp = {o[0] - p[0], o[1] - p[1], o[2] - p[2]};
+                steps.push_back(stp);
+            }
+
+            std::size_t step = 0;
+
             for(std::size_t i = 0; i < stances.size(); ++i)
             {
                 WalkState state;
@@ -321,7 +335,14 @@ namespace humoto
 
                 if (humoto::walking::StanceType::TDS != state.type_)
                 {
-                    getConstraints(state, model);
+                    std::vector<std::vector<double> > previewed_steps;
+                    humoto::wpg04::WalkParameters wp;
+
+                    previewed_steps.push_back(steps[step]);
+                    wp.step_sequence_.assign(previewed_steps.begin(), previewed_steps.end());
+                    getConstraints(state, model, wp);
+
+                    step++;
                 }
                 walk_states_[i] = state;
             }
@@ -467,9 +488,11 @@ namespace humoto
          *
          * @param[in,out] state
          * @param[in] model
+         * @param[in] walk_parameters
          */
-        void PreviewHorizon::getConstraints(WalkState       &state,
-                                            const Model     &model)
+        void PreviewHorizon::getConstraints(WalkState             &state,
+                                            const Model           &model,
+                                            const WalkParameters  &walk_parameters)
         {
             if(state.subtype_ == humoto::walking::StanceSubType::FIRST)
             {
@@ -477,56 +500,65 @@ namespace humoto
             }
             else
             {
-                switch(state.type_)
+                if (walk_parameters.step_sequence_.size() > 0)
                 {
-                    case humoto::walking::StanceType::LSS:
-                        switch(state.previous_nontds_stance_type_)
-                        {
-                            case humoto::walking::StanceType::DS:
-                                state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::LEFT, humoto::walking::FootBoundsType::WITH_RESPECT_TO_ADS);
-                                break;
-                            case humoto::walking::StanceType::RSS:
-                                state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::LEFT, humoto::walking::FootBoundsType::WITH_RESPECT_TO_SS);
-                                break;
-                            default:
-                                HUMOTO_THROW_MSG("unexpected support type");
-                                break;
-                        }
-                        break;
+                    state.fd_bounds_ <<
+                        walk_parameters.step_sequence_[0][0], walk_parameters.step_sequence_[0][0],
+                        walk_parameters.step_sequence_[0][1], walk_parameters.step_sequence_[0][1];
+                }
+                else
+                {
+                    switch(state.type_)
+                    {
+                        case humoto::walking::StanceType::LSS:
+                            switch(state.previous_nontds_stance_type_)
+                            {
+                                case humoto::walking::StanceType::DS:
+                                    state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::LEFT, humoto::walking::FootBoundsType::WITH_RESPECT_TO_ADS);
+                                    break;
+                                case humoto::walking::StanceType::RSS:
+                                    state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::LEFT, humoto::walking::FootBoundsType::WITH_RESPECT_TO_SS);
+                                    break;
+                                default:
+                                    HUMOTO_THROW_MSG("unexpected support type");
+                                    break;
+                            }
+                            break;
 
-                    case humoto::walking::StanceType::RSS:
-                        switch(state.previous_nontds_stance_type_)
-                        {
-                            case humoto::walking::StanceType::DS:
-                                state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::RIGHT, humoto::walking::FootBoundsType::WITH_RESPECT_TO_ADS);
-                                break;
-                            case humoto::walking::StanceType::LSS:
-                                state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::RIGHT, humoto::walking::FootBoundsType::WITH_RESPECT_TO_SS);
-                                break;
-                            default:
-                                HUMOTO_THROW_MSG("unexpected support type");
-                                break;
-                        }
-                        break;
+                        case humoto::walking::StanceType::RSS:
+                            switch(state.previous_nontds_stance_type_)
+                            {
+                                case humoto::walking::StanceType::DS:
+                                    state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::RIGHT, humoto::walking::FootBoundsType::WITH_RESPECT_TO_ADS);
+                                    break;
+                                case humoto::walking::StanceType::LSS:
+                                    state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::RIGHT, humoto::walking::FootBoundsType::WITH_RESPECT_TO_SS);
+                                    break;
+                                default:
+                                    HUMOTO_THROW_MSG("unexpected support type");
+                                    break;
+                            }
+                            break;
 
-                    case humoto::walking::StanceType::DS:
-                        switch(state.previous_nontds_stance_type_)
-                        {
-                            case humoto::walking::StanceType::LSS:
-                                state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::RIGHT, humoto::walking::FootBoundsType::ALIGNED_TO_SS);
-                                break;
-                            case humoto::walking::StanceType::RSS:
-                                state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::LEFT, humoto::walking::FootBoundsType::ALIGNED_TO_SS);
-                                break;
-                            default:
-                                HUMOTO_THROW_MSG("unexpected support type");
-                                break;
-                        }
-                        break;
+                        case humoto::walking::StanceType::DS:
+                            switch(state.previous_nontds_stance_type_)
+                            {
+                                case humoto::walking::StanceType::LSS:
+                                    state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::RIGHT, humoto::walking::FootBoundsType::ALIGNED_TO_SS);
+                                    break;
+                                case humoto::walking::StanceType::RSS:
+                                    state.fd_bounds_ = model.getFootBounds(humoto::LeftOrRight::LEFT, humoto::walking::FootBoundsType::ALIGNED_TO_SS);
+                                    break;
+                                default:
+                                    HUMOTO_THROW_MSG("unexpected support type");
+                                    break;
+                            }
+                            break;
 
-                    default:
-                        HUMOTO_THROW_MSG("unexpected support type");
-                        break;
+                        default:
+                            HUMOTO_THROW_MSG("unexpected support type");
+                            break;
+                    }
                 }
             }
 

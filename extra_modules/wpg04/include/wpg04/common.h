@@ -17,7 +17,6 @@ namespace humoto
         static const char * COP_VARIABLES_ID       = "CoP";
         static const char * FOOTPOS_VARIABLES_ID   = "footpos";
 
-
         /**
          * @brief Class containing options of the walking pattern generator
          */
@@ -29,10 +28,9 @@ namespace humoto
                 HUMOTO_CONFIG_COMPOUND_(com_velocity)\
                 HUMOTO_CONFIG_COMPOUND_(first_stance_com_velocity)\
                 HUMOTO_CONFIG_COMPOUND_(last_stance_com_velocity)\
-                \
                 HUMOTO_CONFIG_SCALAR_(step_height)\
                 HUMOTO_CONFIG_SCALAR_(theta_increment)\
-                \
+                HUMOTO_CONFIG_COMPOUND_(step_sequence)\
                 HUMOTO_CONFIG_PARENT_CLASS(humoto::walking::StanceFSMParameters)
             #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
@@ -41,6 +39,7 @@ namespace humoto
                 etools::Vector2    com_velocity_;
                 etools::Vector2    first_stance_com_velocity_;
                 etools::Vector2    last_stance_com_velocity_;
+                std::vector<std::vector<double> >  step_sequence_;
 
                 double              step_height_;
                 double              theta_increment_;
@@ -67,6 +66,9 @@ namespace humoto
                     last_stance_com_velocity_   << 0.,  0.;
                     step_height_                = 0.07;
                     theta_increment_            = 0.0;
+
+                    double zero[] = {0, 0, 0};
+                    step_sequence_.push_back(std::vector<double>(zero, zero+3));
 
                     humoto::walking::StanceFSMParameters::setDefaults();
                 }
