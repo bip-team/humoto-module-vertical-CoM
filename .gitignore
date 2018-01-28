@@ -2,3 +2,4 @@ build*
 out
 *.pyc
 plotFile.py
+.DS_Store
