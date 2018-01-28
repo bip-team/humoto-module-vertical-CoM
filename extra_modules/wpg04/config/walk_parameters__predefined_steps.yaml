@@ -1,5 +1,6 @@
 WalkParameters:
   com_velocity: [0.1, 0]
+  com_position: [0, 0]
   first_stance_com_velocity: [0.1, 0]
   last_stance_com_velocity: [0, 0]
   ss_duration_ms: 700
