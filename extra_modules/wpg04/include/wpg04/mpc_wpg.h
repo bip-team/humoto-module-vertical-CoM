@@ -98,6 +98,8 @@ namespace humoto
                 {
                     humoto::wpg04::ModelState model_state;
 
+                    std::cout << "default com_height: " << model_state.com_state_.position_.z() << std::endl;
+
                     double T     = preview_horizon_.intervals_[0].T_;
                     double Ts    = mpc_parameters_.getSubsamplingTime();
                     double com_height = preview_horizon_.intervals_[0].com_height_;
@@ -108,6 +110,8 @@ namespace humoto
                                                             com_height,
                                                             model.getCState(),
                                                             cop_profile.segment(0, model.Nu_));
+
+                    std::cout << "after setting com_height: " << model_state.com_state_.position_.z() << std::endl;
 
                     model_state.stance_type_        = stance_fsm.current_stance_.type_;
 
