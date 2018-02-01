@@ -14,7 +14,9 @@
 #  theta_increment: 0.0
 WalkParameters:
    com_velocity: [0.1, 0]
-   com_position: [1.0, -0.5]
+   com_position: [1.0, 0.0]
+   com_velocity_bound_x: [-0.1, 0.1]
+   com_velocity_bound_y: [-0.1, 0.1]
    first_stance_com_velocity: [0.1, 0]
    last_stance_com_velocity: [0, 0]
    ss_duration_ms: 700

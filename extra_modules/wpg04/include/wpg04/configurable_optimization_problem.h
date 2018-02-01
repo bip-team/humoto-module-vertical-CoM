@@ -55,7 +55,11 @@ namespace humoto
                     {
                         return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCoMPosition));
                     }
-                    
+                    if (string_id == "TaskCoMVelBounds")
+                    {
+                        return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCoMVelBounds));
+                    }
+
                     return(humoto::ConfigurableOptimizationProblem::getTask(string_id));
                 }
         };
