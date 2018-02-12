@@ -459,8 +459,6 @@ namespace humoto
 
             std::size_t interval_index = 0;
 
-            std::cout << "picadura0: " << preview_horizon_length_<< std::endl;
-
             while(interval_index < preview_horizon_length_)
             {
                 WalkState state = walk_states_.at(walk_index);
