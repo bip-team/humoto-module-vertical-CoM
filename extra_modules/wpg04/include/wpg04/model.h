@@ -36,27 +36,27 @@ namespace humoto
                     switch(state_.stance_type_)
                     {
                         case humoto::walking::StanceType::LSS:
-                            current_support_position_ = state_.feet_.getLeft().position_.head(2);
+                            current_support_position_ = state_.feet_.getLeft().position_;
                             break;
                         case humoto::walking::StanceType::RSS:
-                            current_support_position_ = state_.feet_.getRight().position_.head(2);
+                            current_support_position_ = state_.feet_.getRight().position_;
                             break;
                         case humoto::walking::StanceType::DS:
-                            current_support_position_  = (state_.feet_.getRight().position_.head(2)
-                                                            + state_.feet_.getLeft().position_.head(2)) / 2.;
+                            current_support_position_  = (state_.feet_.getRight().position_
+                                                            + state_.feet_.getLeft().position_) / 2.;
                             break;
                         case humoto::walking::StanceType::TDS:
                             switch(state_.next_stance_type_)
                             {
                                 case humoto::walking::StanceType::LSS:
-                                    current_support_position_ = state_.feet_.getLeft().position_.head(2);
+                                    current_support_position_ = state_.feet_.getLeft().position_;
                                     break;
                                 case humoto::walking::StanceType::RSS:
-                                    current_support_position_ = state_.feet_.getRight().position_.head(2);
+                                    current_support_position_ = state_.feet_.getRight().position_;
                                     break;
                                 case humoto::walking::StanceType::DS:
-                                    current_support_position_  = (state_.feet_.getRight().position_.head(2)
-                                                                    + state_.feet_.getLeft().position_.head(2)) / 2.;
+                                    current_support_position_  = (state_.feet_.getRight().position_
+                                                                    + state_.feet_.getLeft().position_) / 2.;
                                     break;
                                 default:
                                     HUMOTO_THROW_MSG("Wrong state sequence.");
@@ -67,14 +67,18 @@ namespace humoto
                             HUMOTO_THROW_MSG("Unknown stance type.");
                             break;
                     }
-                }
 
+                    current_support_horizontal_position_ = current_support_position_.head(2);
+                    current_support_vertical_position_ = current_support_position_[2];
+                }
 
             public:
                 /// state of the model
                 humoto::wpg04::ModelState       state_;
-                /// 2d position of the current support (center of a foot or ADS)
-                etools::Vector2                current_support_position_;
+                /// position of the current support (center of a foot or ADS)
+                etools::Vector3                current_support_position_;
+                etools::Vector2				   current_support_horizontal_position_;
+                double						   current_support_vertical_position_;
 
 
             public:

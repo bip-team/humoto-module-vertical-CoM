@@ -61,7 +61,7 @@ namespace humoto
                 void formFootPosMatrices(const humoto::wpg04::Model &model)
                 {
                     // generate_fixed_step_vector
-                    V0_ = model.current_support_position_.replicate(preview_horizon_.intervals_.size(), 1);
+                    V0_ = model.current_support_horizontal_position_.replicate(preview_horizon_.intervals_.size(), 1);
 
 
                     Ir_.setZero(preview_horizon_.intervals_.size(), preview_horizon_.getNumberOfVariableSteps());
@@ -80,7 +80,7 @@ namespace humoto
                             preview_horizon_.getNumberOfVariableSteps(),
                             preview_horizon_.getNumberOfVariableSteps()).triangularView<Eigen::Lower>() * R_.getRaw();
 
-                    vfp_ = model.current_support_position_.replicate(preview_horizon_.getNumberOfVariableSteps(), 1);
+                    vfp_ = model.current_support_horizontal_position_.replicate(preview_horizon_.getNumberOfVariableSteps(), 1);
                 }
 
 
@@ -371,7 +371,7 @@ namespace humoto
                         S_ <<   Uu.getBlockKroneckerProduct(2) * Rh_,
                                 UuIr.getBlockKroneckerProduct(2) * R_;
 
-                        s_.noalias() = Uu1n.getBlockKroneckerProduct(2) * model.current_support_position_
+                        s_.noalias() = Uu1n.getBlockKroneckerProduct(2) * model.current_support_horizontal_position_
                                         +  Ux.getBlockKroneckerProduct(2) * model.getCState();
 
                         // -----
@@ -379,7 +379,7 @@ namespace humoto
                         Sdz_.resize (2*mpc_parameters_.preview_horizon_length_, sol_structure_.getNumberOfVariables ());
                         Sdz_ << Ou.getBlockKroneckerProduct(2) * Rh_,
                                 OuIr.getBlockKroneckerProduct(2) * R_;
-                        sdz_.noalias() = Ou1n.getBlockKroneckerProduct(2) * model.current_support_position_
+                        sdz_.noalias() = Ou1n.getBlockKroneckerProduct(2) * model.current_support_horizontal_position_
                                             +  Ox.getBlockKroneckerProduct(2) * model.getCState();
 
                         control_status = ControlProblemStatus::OK;
