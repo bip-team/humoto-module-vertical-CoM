@@ -32,6 +32,12 @@ namespace humoto
                  */
                 void determineSupportPosition()
                 {
+                	etools::Vector3 translation;
+                	translation << 0,
+                				   0,
+								   current_support_vertical_position_;
+                	state_.translate(translation);
+
                     /// assume that in DS feet are aligned
                     switch(state_.stance_type_)
                     {
@@ -70,6 +76,11 @@ namespace humoto
 
                     current_support_horizontal_position_ = current_support_position_.head(2);
                     current_support_vertical_position_ = current_support_position_[2];
+
+                	translation << 0,
+                				   0,
+								   -current_support_vertical_position_;
+                	state_.translate(translation);
                 }
 
             public:
