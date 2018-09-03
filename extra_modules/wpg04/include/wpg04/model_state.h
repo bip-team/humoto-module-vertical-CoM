@@ -167,7 +167,17 @@ namespace humoto
                     next_stance_type_    = humoto::walking::StanceType::UNDEFINED;
                 }
 
-
+                /**
+                 * @brief translate the feet and the CoM of a given 3D translation vector.
+                 *
+                 * @param[in] translation    translation 3D vector
+                 */
+                void translate(etools::Vector3 translation)
+                {
+                	com_state_.translate(translation);
+                	feet_.getLeft().translate(translation);
+                	feet_.getRight().translate(translation);
+                }
 
                 /**
                  * @brief Log
