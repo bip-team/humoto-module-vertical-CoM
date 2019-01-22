@@ -1,3 +1,3 @@
 [submodule "humoto"]
 	path = humoto
-	url = https://amifsud@scm.gforge.inria.fr/authscm/amifsud/git/bip-researchsrc/amifsud-humoto.git 
+	url = https://github.com/bip-team/humoto.git
