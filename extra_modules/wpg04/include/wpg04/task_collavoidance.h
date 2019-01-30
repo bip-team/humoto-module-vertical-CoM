@@ -64,9 +64,7 @@ namespace humoto
 
                         for(std::size_t i = 0; i < model.obstacles_.size(); ++i)
                         {
-                            A.block(i * mpc.getPreviewHorizonLength(), 0, 
-                                    mpc.getPreviewHorizonLength(), sol_structure.getNumberOfVariables()) = model.obstacles_[i]->getA();
-                            
+                            A.block(i * mpc.getPreviewHorizonLength(), 0, mpc.getPreviewHorizonLength(), sol_structure.getNumberOfVariables()) = model.obstacles_[i]->getA();
                             b.segment(i * mpc.getPreviewHorizonLength(), mpc.getPreviewHorizonLength())  = model.obstacles_[i]->getBounds();
                         }
                     }

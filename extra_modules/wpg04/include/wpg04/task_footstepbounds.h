@@ -72,11 +72,6 @@ namespace humoto
                         lb.segment(i*2, 2) = mpc.preview_horizon_.getFootPositionBounds(i).col(0);
                         ub.segment(i*2, 2) = mpc.preview_horizon_.getFootPositionBounds(i).col(1);
 
-                        std::cout << "lb" << std::endl;
-                        std::cout << mpc.preview_horizon_.getFootPositionBounds(i).col(0) << std::endl;
-                        std::cout << "ub" << std::endl;
-                        std::cout << mpc.preview_horizon_.getFootPositionBounds(i).col(1) << std::endl;
-
                         // fixed footsteps lb = ub
                         if(fix_footsteps_)
                         {
@@ -97,9 +92,9 @@ namespace humoto
 
 
                 /// @copydoc humoto::TaskBase::guessActiveSet
-				void guessActiveSet(const humoto::SolutionStructure &sol_structure,
-									const humoto::Model &model_base,
-									const humoto::ControlProblem &control_problem)
+                void guessActiveSet(const humoto::SolutionStructure &sol_structure,
+                                    const humoto::Model &model_base,
+                                    const humoto::ControlProblem &control_problem)
                 {
                     Location loc_var = sol_structure.getSolutionPartLocation(FOOTPOS_VARIABLES_ID);
                     std::size_t size_of_the_old_active_set = getActualActiveSet().size();

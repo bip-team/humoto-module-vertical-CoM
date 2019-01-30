@@ -50,22 +50,18 @@ namespace humoto
                 {
                     const humoto::wpg04::MPCforWPG  &mpc = dynamic_cast <const humoto::wpg04::MPCforWPG &> (control_problem);
 
-
                     Eigen::MatrixXd &A = getA();
                     Eigen::VectorXd &b = getB();
-
                     Eigen::VectorXd cpos_ref;
-
                     cpos_ref.resize(mpc.getPreviewHorizonLength()*2);
 
                     for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
                     {
-                      cpos_ref.segment(i*2, 2) = mpc.preview_horizon_.intervals_[i].cpos_ref_;
+                        cpos_ref.segment(i*2, 2) = mpc.preview_horizon_.intervals_[i].cpos_ref_;
                     }
 
                     A.noalias() = getGain() * (mpc.position_selector_ * mpc.S_); // Sp
                     b.noalias() = -getGain() * (mpc.position_selector_ * mpc.s_ /*sp*/ - cpos_ref);
-
                 };
         };
     }
