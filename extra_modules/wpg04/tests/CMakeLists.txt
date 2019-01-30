@@ -6,21 +6,21 @@ if (HUMOTO_BUILD_TESTS)
     #- load parameters from yaml configuration files
     #- guess active set and solution
     #- log all data in Octave-parsable format to a given file (can be specified with a command line parameter)
-    humoto_define_test(${HUMOTO_MODULE} "000" "qpOASES;config_yaml")
+    humoto_define_test(${HUMOTO_MODULE} "000" "qpOASES;config_yaml;obstacle_avoidance")
 
     #HuMoTo demo 2
     #- LexLS
     #- hrp2 (default)
     #- guess active set and solution
     #- log all data in Octave-parsable format to a given file (can be specified with a command line parameter)
-    humoto_define_test(${HUMOTO_MODULE} "003" "lexls")
+    humoto_define_test(${HUMOTO_MODULE} "003" "lexls;obstacle_avoidance")
 
     #Demo with HRP4 parameters, configurable optimization problem
     #- qpOASES
     #- hrp4
     #- guess active set and solution
     #- log all data in Octave-parsable format to a given file (can be specified with a command line parameter)
-    humoto_define_test(${HUMOTO_MODULE} "005" "qpOASES;config_yaml")
+    humoto_define_test(${HUMOTO_MODULE} "005" "qpOASES;config_yaml;obstacle_avoidance")
 
     #Performance test 1
     #- qpOASES / LexLS
@@ -35,23 +35,31 @@ if (HUMOTO_BUILD_TESTS)
     #    b) solution of the optimization problem
     #    c) the whole loop
     #- results are saved in Octave-parsable format
-    humoto_define_test(${HUMOTO_MODULE} "006" "" "lexls;qpOASES")
+    humoto_define_test(${HUMOTO_MODULE} "006" "obstacle_avoidance" "lexls;qpOASES")
 
     #Demo with terminal constraint task in hierarchy
     #- qpOASES
     #- hrp2
     #- log all data in Octave-parsable format to a given file (can be specified with a command line parameter)
-    humoto_define_test(${HUMOTO_MODULE} "008" "qpOASES")
+    humoto_define_test(${HUMOTO_MODULE} "008" "qpOASES;obstacle_avoidance")
 
     # QuadProgpp demo
-    humoto_define_test(${HUMOTO_MODULE} "009" "QuadProgpp")
+    humoto_define_test(${HUMOTO_MODULE} "009" "QuadProgpp;obstacle_avoidance")
+
+    #HuMoTo demo 1
+    #- qpOASES
+    #- hrp2 (default)
+    #- load parameters from yaml configuration files
+    #- guess active set and solution
+    #- log all data in Octave-parsable format to a given file (can be specified with a command line parameter)
+    humoto_define_test(${HUMOTO_MODULE} "010" "qpOASES;config_yaml;obstacle_avoidance")
 endif()
 
 if (HUMOTO_BUILD_REGRESSION_TESTS)
     #Various solvers and hotstarting options.
     #- qpOASES, LexLS, eiQuadProg, QuadProgpp
     #- compare the last solution with the reference
-    humoto_define_regression_test(${HUMOTO_MODULE} "000" "config_yaml" "qpOASES;lexls;eiquadprog;QuadProgpp;qpmad")
+    humoto_define_regression_test(${HUMOTO_MODULE} "000" "config_yaml;obstacle_avoidance;qpOASES" "lexls;eiquadprog;QuadProgpp;qpmad")
 
     #Fixed footstep positions
     #Rotating feet
@@ -61,18 +69,18 @@ if (HUMOTO_BUILD_REGRESSION_TESTS)
     #- qpOASES
     #- load configuration parameters from a file
     #- compare the last solution with the reference
-    humoto_define_regression_test(${HUMOTO_MODULE} "001" "qpOASES;config_yaml")
+    humoto_define_regression_test(${HUMOTO_MODULE} "001" "qpOASES;config_yaml;obstacle_avoidance")
 
     #Check log format
     #- qpOASES
     #- guess solution and the active set
     #- log all data in Octave-parsable format
     #- strip the log file and compare with the reference
-    humoto_define_regression_test(${HUMOTO_MODULE} "002" "qpOASES;DIFF_WITH_REFERENCE")
+    humoto_define_regression_test(${HUMOTO_MODULE} "002" "qpOASES;DIFF_WITH_REFERENCE;obstacle_avoidance")
 
     #Check solvers consistency when terminal constraint is present in the hierarchy
     #- LexLS
     #- terminal constraint on the first or second level
     #- compare the last solution with the reference (output from the qpOASES solution of the same problem)
-    humoto_define_regression_test(${HUMOTO_MODULE} "007" "lexls;config_yaml")
+    humoto_define_regression_test(${HUMOTO_MODULE} "007" "lexls;config_yaml;obstacle_avoidance")
 endif()

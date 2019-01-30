@@ -22,8 +22,8 @@ namespace humoto
             #define HUMOTO_CONFIG_ENTRIES \
                 HUMOTO_CONFIG_PARENT_CLASS(TaskAB)
             #include HUMOTO_CONFIG_DEFINE_ACCESSORS
-                
-                
+
+
             protected:
                 void setDefaults()
                 {
@@ -36,8 +36,8 @@ namespace humoto
                 {
                     TaskAB::finalize();
                 }
-            
-            
+
+
             public:
                 explicit TaskCoPVelocity (const double gain = 0.223606797749979) 
                     : TaskAB("TaskCoPVelocity", gain)

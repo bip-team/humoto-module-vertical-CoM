@@ -38,14 +38,14 @@ namespace humoto
 
 #include "wpg04/task_comvelocity.h"
 #include "wpg04/task_composition.h"
-#include "wpg04/task_com_vel_bounds.h"
+#include "wpg04/task_comvelocitybounds.h"
 
 #include "wpg04/task_copbounds.h"
 #include "wpg04/task_copposition.h"
 #include "wpg04/task_copvelocity.h"
 #include "wpg04/task_footstepbounds.h"
 #include "wpg04/task_terminalconstraint.h"
-
+#include "wpg04/task_collavoidance.h"
 
 #ifdef HUMOTO_USE_CONFIG
 #include "wpg04/configurable_optimization_problem.h"

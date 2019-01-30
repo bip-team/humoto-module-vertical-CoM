@@ -72,6 +72,11 @@ namespace humoto
                         lb.segment(i*2, 2) = mpc.preview_horizon_.getFootPositionBounds(i).col(0);
                         ub.segment(i*2, 2) = mpc.preview_horizon_.getFootPositionBounds(i).col(1);
 
+                        std::cout << "lb" << std::endl;
+                        std::cout << mpc.preview_horizon_.getFootPositionBounds(i).col(0) << std::endl;
+                        std::cout << "ub" << std::endl;
+                        std::cout << mpc.preview_horizon_.getFootPositionBounds(i).col(1) << std::endl;
+
                         // fixed footsteps lb = ub
                         if(fix_footsteps_)
                         {

@@ -14,6 +14,8 @@
 
 // common & abstract classes (must be first)
 #include "humoto/humoto.h"
+// obstacle avoidance
+#include "humoto/obstacle_avoidance.h"
 // specific control problem (many can be included simultaneously)
 #include "humoto/wpg04.h"
 

@@ -170,7 +170,6 @@ namespace humoto
                 }
 
 
-
                 /**
                  * @brief Determine landing state of a foot
                  *
@@ -225,10 +224,8 @@ namespace humoto
                 }
 
 
-
             public:
                 humoto::wpg04::PreviewHorizon   preview_horizon_;
-
 
                 etools::DiagonalBlockMatrix<2,2>     R_;
                 etools::DiagonalBlockMatrix<2,2>     Rh_;
@@ -241,25 +238,32 @@ namespace humoto
 
                 Eigen::MatrixXd                 S_;
                 Eigen::MatrixXd                 s_;
+                Eigen::MatrixXd                 prev_S_;
+                Eigen::MatrixXd                 prev_s_;
 
                 etools::SelectionMatrix         velocity_selector_;
                 etools::SelectionMatrix         position_selector_;
 
+                // hatC = [c_x dc_x ddc_x c_y dc_y ddc_y]'
+                etools::SelectionMatrix         x_position_selector_;
+                etools::SelectionMatrix         y_position_selector_;
+
                 Eigen::MatrixXd                 Sdz_;
                 Eigen::MatrixXd                 sdz_;
-
 
                 Eigen::VectorXd                 cop_profile;
                 Eigen::VectorXd                 dcop_profile;
                 Eigen::VectorXd                 cstate_profile;
                 Eigen::VectorXd                 footpos_profile;
 
-
             public:
                 /**
                  * @brief Constructor
                  */
-                MPCforWPG() : velocity_selector_(3,1),position_selector_(3,0)
+                MPCforWPG() : velocity_selector_(3,1),
+                              position_selector_(3,0),
+                              x_position_selector_(6,0),
+                              y_position_selector_(6,3)
                 {
                     solution_is_parsed_ = false;
                 }
@@ -271,7 +275,11 @@ namespace humoto
                  * @param[in] mpc_parameters parameters of the MPC
                  */
                 explicit MPCforWPG(const humoto::wpg04::MPCParameters &mpc_parameters)
-                    : velocity_selector_(3,1), position_selector_(3,0)
+                    : velocity_selector_(3,1), 
+                      position_selector_(3,0),
+                      x_position_selector_(6,0),
+                      y_position_selector_(6,3)
+
                 {
                     solution_is_parsed_ = false;
                     setParameters(mpc_parameters);
@@ -292,8 +300,8 @@ namespace humoto
                 /**
                  * @brief Update control problem
                  *
-                 * @param[in] model     model of the system
-                 * @param[in] stance_fsm  walking finite state machine
+                 * @param[in] model           model of the system
+                 * @param[in] stance_fsm      walking finite state machine
                  * @param[in] walk_parameters
                  *
                  * @return ControlProblemStatus::OK/ControlProblemStatus::STOPPED
@@ -318,18 +326,16 @@ namespace humoto
 
                         std::size_t number_of_state_variables = model.Ns_ * mpc_parameters_.preview_horizon_length_;
 
-
                         // Initialize matrices
                         formRotationMatrices();
                         formFootPosMatrices(model);
-
 
                         // condensing
                         std::vector<etools::Matrix3>    A_matrices;
                         std::vector<etools::Vector3>    B_matrices;
 
                         std::vector<etools::Matrix1x3>  D_matrices;
-                        std::vector<double>              E_matrices;
+                        std::vector<double>             E_matrices;
 
                         A_matrices.resize(mpc_parameters_.preview_horizon_length_);
                         B_matrices.resize(mpc_parameters_.preview_horizon_length_);
@@ -351,7 +357,8 @@ namespace humoto
 
                         etools::GenericBlockMatrix<3,3> Ux;
                         etools::LeftLowerTriangularBlockMatrix<3,1> Uu;
-//                        etools::GenericBlockMatrix<3,1> Uu;
+
+                        //  etools::GenericBlockMatrix<3,1> Uu;
                         condense(Ux, Uu, A_matrices, B_matrices);
 
                         etools::GenericBlockMatrix<1,3> Ox;
@@ -365,20 +372,29 @@ namespace humoto
                         etools::GenericBlockMatrix<3,1> Uu1n(Uu.getRaw().rowwise().sum());
                         etools::GenericBlockMatrix<1,1> Ou1n(Ou.getRaw().rowwise().sum());
 
-                        // -----
+                        prev_S_ = S_;
+                        prev_s_ = s_;
 
+                        // ----- //
                         S_.resize (number_of_state_variables, sol_structure_.getNumberOfVariables ());
+
+                        // S = [ Uu , Uu * V ]
                         S_ <<   Uu.getBlockKroneckerProduct(2) * Rh_,
                                 UuIr.getBlockKroneckerProduct(2) * R_;
 
+                        // s = Uu * V0 + Ux * c0
                         s_.noalias() = Uu1n.getBlockKroneckerProduct(2) * model.current_support_horizontal_position_
                                         +  Ux.getBlockKroneckerProduct(2) * model.getCState();
 
                         // -----
 
-                        Sdz_.resize (2*mpc_parameters_.preview_horizon_length_, sol_structure_.getNumberOfVariables ());
+                        Sdz_.resize (2*mpc_parameters_.preview_horizon_length_, sol_structure_.getNumberOfVariables());
+
+                        // Sdz = [ ]
                         Sdz_ << Ou.getBlockKroneckerProduct(2) * Rh_,
                                 OuIr.getBlockKroneckerProduct(2) * R_;
+
+                        // s = Ou * V0 + Ox * c0
                         sdz_.noalias() = Ou1n.getBlockKroneckerProduct(2) * model.current_support_horizontal_position_
                                             +  Ox.getBlockKroneckerProduct(2) * model.getCState();
 
@@ -390,6 +406,16 @@ namespace humoto
                     }
 
                     return (control_status);
+                }
+
+                /**
+                 * @brief  Get number of decision variables
+                 *
+                 * @return number of decision variables
+                 */
+                std::size_t getNumberOfDecisionVariables() const
+                {
+                    return(sol_structure_.getNumberOfVariables());
                 }
 
 
@@ -493,7 +519,6 @@ namespace humoto
                 }
 
 
-
                 /**
                  * @brief Guess solution
                  *
@@ -512,13 +537,10 @@ namespace humoto
                         Location guess_part = solution_guess.getSolutionPartLocation(COP_VARIABLES_ID);
 
                         guess_part.length_ -= 2;
-
                         old_part.offset_ +=2;
                         old_part.length_ -=2;
 
                         solution_guess.getData(guess_part) = old_solution.getData(old_part);
-
-
 
                         old_part = old_solution.getSolutionPartLocation(FOOTPOS_VARIABLES_ID);
                         guess_part = solution_guess.getSolutionPartLocation(FOOTPOS_VARIABLES_ID);

@@ -32,11 +32,9 @@ namespace humoto
                  */
                 void determineSupportPosition()
                 {
-                	etools::Vector3 translation;
-                	translation << 0,
-                				   0,
-								   current_support_vertical_position_;
-                	state_.translate(translation);
+                    etools::Vector3 translation;
+                    translation << 0, 0, current_support_vertical_position_;
+                    state_.translate(translation);
 
                     /// assume that in DS feet are aligned
                     switch(state_.stance_type_)
@@ -77,20 +75,18 @@ namespace humoto
                     current_support_horizontal_position_ = current_support_position_.head(2);
                     current_support_vertical_position_ = current_support_position_[2];
 
-                	translation << 0,
-                				   0,
-								   -current_support_vertical_position_;
-                	state_.translate(translation);
+                	  translation << 0, 0, -current_support_vertical_position_;
+                	  state_.translate(translation);
                 }
 
             public:
                 /// state of the model
-                humoto::wpg04::ModelState       state_;
+                humoto::wpg04::ModelState state_;
                 /// position of the current support (center of a foot or ADS)
-                etools::Vector3                current_support_position_;
-                etools::Vector2				   current_support_horizontal_position_;
-                double						   current_support_vertical_position_;
-
+                etools::Vector3 current_support_position_;
+                etools::Vector2	current_support_horizontal_position_;
+                double current_support_vertical_position_;
+                std::vector<boost::shared_ptr<humoto::obstacle_avoidance::ObstacleBase> > obstacles_;
 
             public:
                 /**
@@ -101,6 +97,79 @@ namespace humoto
                     determineSupportPosition();
                 }
 
+
+                /**
+                 * @brief Add obstacle
+                 *
+                 * @param[in] obstacle
+                 */
+                void addObstacle(const boost::shared_ptr<humoto::obstacle_avoidance::ObstacleBase>& obstacle)
+                {
+                    obstacles_.push_back(obstacle);
+                }
+
+
+                /**
+                 * @brief Update obstacles
+                 *
+                 * @param[in] control_problem
+                 * @param[in] iteration_time
+                 * @param[in] old_solution
+                 * @param[in] safety_margin
+                 */
+                void updateObstacles(const humoto::ControlProblem& control_problem,
+                                     const std::size_t             iteration_time,
+                                     const humoto::Solution&       old_solution,
+                                     const double                  safety_margin)
+                {
+                    // -------------------------------------------------- //
+
+                    // if the instant 0 is passed, we can update
+                    // the collision avoidance constratins.
+                    // Update the matrices used
+                    // for the CollAvoidance Jacobian
+
+                    // First, I check how many obstacles appear around
+                    // the robot (Assumed FoV). This will be used to initialize
+                    // the current position of the obstacle as variable.
+
+                    // For each obstacle we build a Jacobian matrix
+                    // w.r.t. the conservative model of the obstacle
+                    // considered.
+
+                    if(iteration_time == 0)
+                    {
+                        for(std::size_t i = 0; i < obstacles_.size(); ++i)
+                        {
+                            obstacles_[i]->resetConstraints(control_problem);
+                        }
+                        return;
+                    }
+
+                    for(std::size_t i = 0; i < obstacles_.size(); ++i)
+                    {
+                        obstacles_[i]->updateConstraints(control_problem,
+                                                         old_solution,
+                                                         safety_margin);
+                    }
+
+                    // We stack together the matrices ready to be
+                    // integrated in a compact constraint form (A,b)
+                    // N constraints for each obstacle.
+
+                    // Stack together:
+                    // M: the condense position of the obstacles
+                    // D: the distance vector (same vector for each obst.)
+                    // J: the jacobian matrices
+                    // stackTogetherCollAvoidanceMatrix();
+
+                    // in order to make the constraints work
+                    // the condense position of the CoM should be stack for
+                    // each obstacle via a selection matrix.
+
+                    // }
+                    // -------------------------------------------------- //
+                }
 
                 /**
                  * @brief Constructor
@@ -118,11 +187,10 @@ namespace humoto
                  *
                  * @return CoM state
                  */
-                humoto::rigidbody::PointMassState   getCoMState() const
+                humoto::rigidbody::PointMassState  getCoMState() const
                 {
                     return (state_.com_state_);
                 }
-
 
                 /**
                  * @brief Returns current foot state.
@@ -136,8 +204,6 @@ namespace humoto
                     return (state_.feet_[left_or_right]);
                 }
 
-
-
                 /**
                  * @brief Get cstate
                  */
@@ -146,8 +212,6 @@ namespace humoto
                     etools::Vector6 cstate = convertCoMState(state_.com_state_);
                     return(cstate);
                 }
-
-
 
                 /**
                  * @brief Get CoM height
@@ -159,24 +223,20 @@ namespace humoto
                     return (state_.com_state_.position_.z());
                 }
 
-
-
                 /**
                  * @brief Update model state.
                  *
                  * @param[in] model_state model state.
                  */
-                void    updateState(const humoto::ModelState &model_state)
+                void updateState(const humoto::ModelState &model_state)
                 {
                     const humoto::wpg04::ModelState &state = dynamic_cast <const humoto::wpg04::ModelState &> (model_state);
 
-                    walking::StanceType::Type   prev_stance_type = state_.stance_type_;
+                    walking::StanceType::Type prev_stance_type = state_.stance_type_;
 
                     state_.com_state_ = state.com_state_;
-
                     state_.stance_type_      = state.stance_type_;
                     state_.next_stance_type_ = state.next_stance_type_;
-
 
                     switch (state.stance_type_)
                     {
@@ -234,9 +294,9 @@ namespace humoto
                  * @param[in] parent parent
                  * @param[in] name name
                  */
-                void log(   humoto::Logger &logger HUMOTO_GLOBAL_LOGGER_IF_DEFINED,
-                            const LogEntryName &parent = LogEntryName(),
-                            const std::string &name = "model") const
+                void log(humoto::Logger &logger HUMOTO_GLOBAL_LOGGER_IF_DEFINED,
+                         const LogEntryName &parent = LogEntryName(),
+                         const std::string &name = "model") const
                 {
                     LogEntryName subname = parent; subname.add(name);
 

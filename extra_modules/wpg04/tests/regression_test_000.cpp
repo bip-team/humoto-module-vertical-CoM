@@ -17,6 +17,7 @@
 // Enable YAML configuration files (must be first)
 #include "humoto/config_yaml.h"
 #include "humoto/humoto.h"
+#include "humoto/obstacle_avoidance.h"
 #include "humoto/wpg04.h"
 
 //testing

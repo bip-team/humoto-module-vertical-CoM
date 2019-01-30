@@ -20,6 +20,8 @@
 #include "humoto/humoto.h"
 // specific solver (many can be included simultaneously)
 #include "humoto/lexls.h"
+// obstacle avoidance
+#include "humoto/obstacle_avoidance.h"
 // specific control problem (many can be included simultaneously)
 #include "humoto/wpg04.h"
 

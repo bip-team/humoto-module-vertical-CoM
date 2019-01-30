@@ -70,8 +70,8 @@ namespace humoto
                 {
                     com_velocity_               << 0.2, 0.;
                     com_position_               << 0., 0.;
-                    com_velocity_bound_x_        << -0.1, 0.1;
-                    com_velocity_bound_y_        << -0.3, 0.3;
+                    com_velocity_bound_x_       << -0.1, 0.1;
+                    com_velocity_bound_y_       << -0.3, 0.3;
 
                     first_stance_com_velocity_  << 0.2, 0.;
                     last_stance_com_velocity_   << 0.,  0.;

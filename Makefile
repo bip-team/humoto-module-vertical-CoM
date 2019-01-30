@@ -23,6 +23,7 @@ wpg04:
 					-DHUMOTO_BUILD_REGRESSION_TESTS=ON \
 					-DHUMOTO_MODULES_DIRS=`pwd`/../extra_modules/ \
 					-DHUMOTO_BRIDGE_qpOASES=ON \
+					-DHUMOTO_BRIDGE_obstacle_avoidance=ON \
 					-DHUMOTO_BRIDGE_config_yaml=ON \
 					-DHUMOTO_MODULE_wpg04=ON \
 					-DHUMOTO_MODULE_wpg05=OFF \

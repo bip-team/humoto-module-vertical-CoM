@@ -68,11 +68,9 @@ namespace humoto
                     initializeFoot(foot_param, humoto::LeftOrRight::LEFT,  theta, initial_ds_position);
                     initializeFoot(foot_param, humoto::LeftOrRight::RIGHT, theta, initial_ds_position);
 
-
                     // initialize com states
                     com_state_.setDefaults();
                     com_state_.position_.z() = com_height; // Height of the CoM
-
 
                     stance_type_         = humoto::walking::StanceType::DS;
                     next_stance_type_    = humoto::walking::StanceType::UNDEFINED;
@@ -91,7 +89,6 @@ namespace humoto
 
                 /// next stance type
                 walking::StanceType::Type  next_stance_type_;
-
 
 
             public:
@@ -125,8 +122,6 @@ namespace humoto
                     humoto::walking::RobotFootParameters robot_parameters;
                     setDefaults(robot_parameters);
                 }
-
-
 
                 /**
                  * @brief Initialize state using parameters
@@ -174,9 +169,9 @@ namespace humoto
                  */
                 void translate(etools::Vector3 translation)
                 {
-                	com_state_.translate(translation);
-                	feet_.getLeft().translate(translation);
-                	feet_.getRight().translate(translation);
+                	  com_state_.translate(translation);
+                	  feet_.getLeft().translate(translation);
+                	  feet_.getRight().translate(translation);
                 }
 
                 /**

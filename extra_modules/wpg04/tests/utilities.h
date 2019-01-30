@@ -174,3 +174,31 @@ void setupHierarchy_v5(humoto::OptimizationProblem &opt_problem)
     opt_problem.pushTask(task_cop_velocity, 1);
     opt_problem.pushTask(task_cop_position, 1);
 }
+
+/**
+ * @brief Hierarchy mine: basic + coll avoidance
+ *
+ * @param[in] opt_problem       hierarchy
+ */
+void setupHierarchy_v6(humoto::OptimizationProblem &opt_problem)
+{
+    // tasks, which are used in the control problem
+    humoto::TaskSharedPointer   task_com_velocity    (new humoto::wpg04::TaskCoMVelocity   );
+    humoto::TaskSharedPointer   task_cop_position    (new humoto::wpg04::TaskCoPPosition   );
+    humoto::TaskSharedPointer   task_cop_velocity    (new humoto::wpg04::TaskCoPVelocity   );
+    humoto::TaskSharedPointer   task_footstep_bounds (new humoto::wpg04::TaskFootstepBounds);
+    humoto::TaskSharedPointer   task_cop_bounds      (new humoto::wpg04::TaskCoPBounds     );
+    humoto::TaskSharedPointer   task_collavoidance   (new humoto::wpg04::TaskCollAvoidance );
+
+    // reset the optimization problem
+    opt_problem.reset(2);
+
+    // push tasks into the stack/hierarchy
+    opt_problem.pushTask(task_footstep_bounds, 0);
+    opt_problem.pushTask(task_cop_bounds, 0);
+    opt_problem.pushTask(task_collavoidance, 0);
+
+    opt_problem.pushTask(task_com_velocity, 1);
+    opt_problem.pushTask(task_cop_velocity, 1);
+    opt_problem.pushTask(task_cop_position, 1);
+}

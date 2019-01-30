@@ -51,6 +51,10 @@ namespace humoto
                     {
                         return (humoto::TaskSharedPointer(new humoto::wpg04::TaskTerminalConstraint));
                     }
+                    if (string_id == "TaskCollAvoidance")
+                    {
+                        return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCollAvoidance));
+                    }
                     if (string_id == "TaskCoMPosition")
                     {
                         return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCoMPosition));
