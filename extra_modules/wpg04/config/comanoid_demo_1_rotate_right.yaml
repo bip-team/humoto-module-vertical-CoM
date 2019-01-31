@@ -1,6 +1,6 @@
 WalkParameters:
   com_velocity: [0.0, 0.0]
-  com_position: [4.1, -1.5]
+  com_position: [4.0, -1.1]
   com_velocity_bound_x: [-0.3, 0.3]
   com_velocity_bound_y: [-0.3, 0.3]
   first_stance_com_velocity: [0.0, 0.0]

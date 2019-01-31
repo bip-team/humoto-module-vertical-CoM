@@ -18,6 +18,9 @@ namespace humoto
         class HUMOTO_LOCAL Circle : public humoto::obstacle_avoidance::ObstacleBase
         {
             public:
+                double radius_;
+
+            public:
                 /**
                  * @brief Constructor.
                  *
@@ -25,7 +28,8 @@ namespace humoto
                  * @param[in] rpy
                  */
                 Circle(const etools::Vector3& position,
-                       const etools::Vector3& rpy) : ObstacleBase(position, rpy)
+                       const etools::Vector3& rpy,
+                       const double           radius) : ObstacleBase(position, rpy), radius_(radius)
                 {
                 }
 
@@ -111,7 +115,7 @@ namespace humoto
                                                   (prev_com_pos(i*2+1) - prev_M(i*2+1)) / (prev_com_pos.segment(i * 2, 2) - prev_M.segment(i * 2, 2)).norm();
 
                         // the safety distance might vary including uncertanties
-                        D(i) = safety_margin;
+                        D(i) = safety_margin + radius_;
                     }
 
                     // n * Sp
