@@ -32,9 +32,13 @@ namespace humoto
                  */
                 void determineSupportPosition()
                 {
+                    ///*
                     etools::Vector3 translation;
-                    translation << 0, 0, current_support_vertical_position_;
+                    translation << 0, 0, current_support_position_.z();
                     state_.translate(translation);
+                    //*/
+
+                    //double position_z = current_support_position_.z();
 
                     /// assume that in DS feet are aligned
                     switch(state_.stance_type_)
@@ -72,11 +76,11 @@ namespace humoto
                             break;
                     }
 
-                    current_support_horizontal_position_ = current_support_position_.head(2);
-                    current_support_vertical_position_ = current_support_position_[2];
-
-                	  translation << 0, 0, -current_support_vertical_position_;
+                    //current_support_position_ << current_support_position_.x(), current_support_position_.y(), position_z;
+                    ///*
+                	  translation << 0, 0, -current_support_position_.z();
                 	  state_.translate(translation);
+                    //*/
                 }
 
             public:
@@ -84,8 +88,6 @@ namespace humoto
                 humoto::wpg04::ModelState state_;
                 /// position of the current support (center of a foot or ADS)
                 etools::Vector3 current_support_position_;
-                etools::Vector2	current_support_horizontal_position_;
-                double current_support_vertical_position_;
                 std::vector<boost::shared_ptr<humoto::obstacle_avoidance::ObstacleBase> > obstacles_;
 
             public:

@@ -68,14 +68,13 @@ namespace humoto
 
 
                 /// @copydoc humoto::TaskBase::guessActiveSet
-				void guessActiveSet(const humoto::SolutionStructure &sol_structure,
-									const humoto::Model &model_base,
-									const humoto::ControlProblem &control_problem)
+                void guessActiveSet(const humoto::SolutionStructure &sol_structure,
+                                    const humoto::Model &model_base,
+                                    const humoto::ControlProblem &control_problem)
                 {
                     Location loc_var = sol_structure.getSolutionPartLocation(COP_VARIABLES_ID);
 
-
-					if (getActualActiveSet().size() == 0)
+                    if (getActualActiveSet().size() == 0)
                     {
                         getActiveSetGuess().initialize(loc_var.length_, ConstraintActivationType::INACTIVE);
                     }

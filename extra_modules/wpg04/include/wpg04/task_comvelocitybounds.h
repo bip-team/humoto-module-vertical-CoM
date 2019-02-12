@@ -59,16 +59,16 @@ namespace humoto
 
 
 
-                   lb_aux_segment << mpc.preview_horizon_.intervals_[1].com_vel_bound_x_(0),
-                   mpc.preview_horizon_.intervals_[1].com_vel_bound_y_(0);
+                    lb_aux_segment << mpc.preview_horizon_.intervals_[1].com_vel_bound_x_(0),
+                    mpc.preview_horizon_.intervals_[1].com_vel_bound_y_(0);
 
-                   ub_aux_segment << mpc.preview_horizon_.intervals_[1].com_vel_bound_x_(1),
-                   mpc.preview_horizon_.intervals_[1].com_vel_bound_y_(1);
+                    ub_aux_segment << mpc.preview_horizon_.intervals_[1].com_vel_bound_x_(1),
+                    mpc.preview_horizon_.intervals_[1].com_vel_bound_y_(1);
 
-                   lb_aux.resize(mpc.getPreviewHorizonLength()*2);
-                   ub_aux.resize(mpc.getPreviewHorizonLength()*2);
-                   lb.resize(mpc.getPreviewHorizonLength()*2);
-                   ub.resize(mpc.getPreviewHorizonLength()*2);
+                    lb_aux.resize(mpc.getPreviewHorizonLength()*2);
+                    ub_aux.resize(mpc.getPreviewHorizonLength()*2);
+                    lb.resize(mpc.getPreviewHorizonLength()*2);
+                    ub.resize(mpc.getPreviewHorizonLength()*2);
 
                     for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
                     {
@@ -96,28 +96,29 @@ namespace humoto
                 };
 
 
-        //         /// @copydoc humoto::TaskBase::guessActiveSet
-				// void guessActiveSet(const humoto::SolutionStructure &sol_structure,
-				// 					const humoto::Model &model_base,
-				// 					const humoto::ControlProblem &control_problem)
-        //         {
-        //             Location loc_var = sol_structure.getSolutionPartLocation(COP_VARIABLES_ID);
-        //
-        //
-				// 	if (getActualActiveSet().size() == 0)
-        //             {
-        //                 getActiveSetGuess().initialize(loc_var.length_, ConstraintActivationType::INACTIVE);
-        //             }
-        //             else
-        //             {
-        //                 HUMOTO_ASSERT(  (getActualActiveSet().size() == loc_var.length_),
-        //                                 "The number of CoP variables is not supposed to change.");
-        //
-        //                 getActiveSetGuess() = getActualActiveSet();
-        //
-        //                 getActiveSetGuess().shift(2, ConstraintActivationType::INACTIVE);
-        //             }
-        //         }
+                 /// @copydoc humoto::TaskBase::guessActiveSet
+                    /*
+                void guessActiveSet(const humoto::SolutionStructure &sol_structure,
+                                    const humoto::Model &model_base,
+                                    const humoto::ControlProblem &control_problem)
+                {
+                    Location loc_var = sol_structure.getSolutionPartLocation(COP_VARIABLES_ID);
+        
+                    if (getActualActiveSet().size() == 0)
+                    {
+                        getActiveSetGuess().initialize(loc_var.length_, ConstraintActivationType::INACTIVE);
+                    }
+                    else
+                    {
+                        HUMOTO_ASSERT(  (getActualActiveSet().size() == loc_var.length_),
+                                        "The number of CoP variables is not supposed to change.");
+        
+                        getActiveSetGuess() = getActualActiveSet();
+        
+                        getActiveSetGuess().shift(2, ConstraintActivationType::INACTIVE);
+                    }
+                }
+                    */
         };
     }
 }

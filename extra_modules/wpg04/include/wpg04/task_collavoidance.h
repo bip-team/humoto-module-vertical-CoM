@@ -47,35 +47,70 @@ namespace humoto
                             const humoto::Model &model_base,
                             const humoto::ControlProblem &control_problem)
                 {
-                    const humoto::wpg04::MPCforWPG& mpc =
-                           dynamic_cast<const humoto::wpg04::MPCforWPG &>(control_problem);
-                    
-                    const humoto::wpg04::Model&   model =
-                                     dynamic_cast<const humoto::wpg04::Model&>(model_base);
-                    
+                    const humoto::wpg04::MPCforWPG& mpc = dynamic_cast<const humoto::wpg04::MPCforWPG &>(control_problem);
+                    const humoto::wpg04::Model& model = dynamic_cast<const humoto::wpg04::Model&>(model_base);
+                    std::size_t number_of_constraints_per_obstacle = mpc.getPreviewHorizonLength();
+                    std::size_t number_of_obstacles = model.obstacles_.size();
+                    std::size_t number_of_constraints = number_of_constraints_per_obstacle * number_of_obstacles;
                     Eigen::MatrixXd &A = getA();
                     Eigen::VectorXd &b = getLowerBounds();
 
-                    if(!model.obstacles_.empty())
+                    if (!model.obstacles_.empty())
                     {
-                        A.resize(model.obstacles_.size() * mpc.getPreviewHorizonLength(),
-                                                               sol_structure.getNumberOfVariables());
-                        b.resize(model.obstacles_.size() * mpc.getPreviewHorizonLength());
+                        A.resize(number_of_constraints, sol_structure.getNumberOfVariables());
+                        b.resize(number_of_constraints);
 
-                        for(std::size_t i = 0; i < model.obstacles_.size(); ++i)
+                        for (std::size_t i = 0; i < number_of_obstacles; ++i)
                         {
-                            A.block(i * mpc.getPreviewHorizonLength(), 0, mpc.getPreviewHorizonLength(), sol_structure.getNumberOfVariables()) = model.obstacles_[i]->getA();
-                            b.segment(i * mpc.getPreviewHorizonLength(), mpc.getPreviewHorizonLength())  = model.obstacles_[i]->getBounds();
+                            A.block(i * number_of_constraints_per_obstacle, 0, number_of_constraints_per_obstacle, sol_structure.getNumberOfVariables()) = model.obstacles_[i]->getA();
+                            b.segment(i * number_of_constraints_per_obstacle, number_of_constraints_per_obstacle) = model.obstacles_[i]->getBounds();
                         }
                     }
                     else
                     {
-                        A.resize(mpc.getPreviewHorizonLength(), sol_structure.getNumberOfVariables());
-                        b.resize(mpc.getPreviewHorizonLength());
+                        A.resize(number_of_constraints_per_obstacle, sol_structure.getNumberOfVariables());
+                        b.resize(number_of_constraints_per_obstacle);
                         A.setZero();
                         b.setZero();
                     }
                 };
+
+
+                /// @copydoc humoto::TaskBase::guessActiveSet
+                void guessActiveSet(const humoto::SolutionStructure &sol_structure,
+                                    const humoto::Model &model_base,
+                                    const humoto::ControlProblem &control_problem)
+                {
+                    const humoto::wpg04::MPCforWPG& mpc = dynamic_cast<const humoto::wpg04::MPCforWPG &>(control_problem);
+                    const humoto::wpg04::Model& model = dynamic_cast<const humoto::wpg04::Model&>(model_base);
+                    std::size_t number_of_obstacles = model.obstacles_.size();
+                    std::size_t number_of_constraints_per_obstacle = mpc.getPreviewHorizonLength();
+                    std::size_t number_of_constraints = number_of_constraints_per_obstacle * number_of_obstacles;
+
+                    if (getActualActiveSet().size() == 0)
+                    {
+                        getActiveSetGuess().initialize(number_of_constraints, ConstraintActivationType::INACTIVE);
+                    }
+                    else
+                    {
+                        HUMOTO_ASSERT((getActualActiveSet().size() == number_of_constraints),
+                                      "The number of obstacles is not supposed to change.");
+
+                        getActiveSetGuess().initialize(number_of_constraints, ConstraintActivationType::INACTIVE);
+
+                        humoto::ActiveSetConstraints tmp;
+                        tmp.initialize(number_of_constraints_per_obstacle - 1);
+
+                        for (std::size_t i = 0; i < number_of_obstacles; ++i)
+                        {
+                            humoto::Location from(i * number_of_constraints_per_obstacle + 1, number_of_constraints_per_obstacle - 1);
+                            tmp.copyFrom(getActualActiveSet(), from);
+
+                            humoto::Location to(i * number_of_constraints_per_obstacle, number_of_constraints_per_obstacle - 1);
+                            getActiveSetGuess().copyTo(to, tmp);
+                        }
+                    }
+                }
         };
     }
 }
