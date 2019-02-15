@@ -88,7 +88,6 @@ namespace humoto
                 humoto::wpg04::ModelState state_;
                 /// position of the current support (center of a foot or ADS)
                 etools::Vector3 current_support_position_;
-                std::vector<boost::shared_ptr<humoto::obstacle_avoidance::ObstacleBase> > obstacles_;
 
             public:
                 /**
@@ -99,79 +98,6 @@ namespace humoto
                     determineSupportPosition();
                 }
 
-
-                /**
-                 * @brief Add obstacle
-                 *
-                 * @param[in] obstacle
-                 */
-                void addObstacle(const boost::shared_ptr<humoto::obstacle_avoidance::ObstacleBase>& obstacle)
-                {
-                    obstacles_.push_back(obstacle);
-                }
-
-
-                /**
-                 * @brief Update obstacles
-                 *
-                 * @param[in] control_problem
-                 * @param[in] iteration_time
-                 * @param[in] old_solution
-                 * @param[in] safety_margin
-                 */
-                void updateObstacles(const humoto::ControlProblem& control_problem,
-                                     const std::size_t             iteration_time,
-                                     const humoto::Solution&       old_solution,
-                                     const double                  safety_margin)
-                {
-                    // -------------------------------------------------- //
-
-                    // if the instant 0 is passed, we can update
-                    // the collision avoidance constratins.
-                    // Update the matrices used
-                    // for the CollAvoidance Jacobian
-
-                    // First, I check how many obstacles appear around
-                    // the robot (Assumed FoV). This will be used to initialize
-                    // the current position of the obstacle as variable.
-
-                    // For each obstacle we build a Jacobian matrix
-                    // w.r.t. the conservative model of the obstacle
-                    // considered.
-
-                    if(iteration_time == 0)
-                    {
-                        for(std::size_t i = 0; i < obstacles_.size(); ++i)
-                        {
-                            obstacles_[i]->resetConstraints(control_problem);
-                        }
-                        return;
-                    }
-
-                    for(std::size_t i = 0; i < obstacles_.size(); ++i)
-                    {
-                        obstacles_[i]->updateConstraints(control_problem,
-                                                         old_solution,
-                                                         safety_margin);
-                    }
-
-                    // We stack together the matrices ready to be
-                    // integrated in a compact constraint form (A,b)
-                    // N constraints for each obstacle.
-
-                    // Stack together:
-                    // M: the condense position of the obstacles
-                    // D: the distance vector (same vector for each obst.)
-                    // J: the jacobian matrices
-                    // stackTogetherCollAvoidanceMatrix();
-
-                    // in order to make the constraints work
-                    // the condense position of the CoM should be stack for
-                    // each obstacle via a selection matrix.
-
-                    // }
-                    // -------------------------------------------------- //
-                }
 
                 /**
                  * @brief Constructor
