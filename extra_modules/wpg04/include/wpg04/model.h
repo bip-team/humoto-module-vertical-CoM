@@ -88,6 +88,7 @@ namespace humoto
                 humoto::wpg04::ModelState state_;
                 /// position of the current support (center of a foot or ADS)
                 etools::Vector3 current_support_position_;
+                std::vector<boost::shared_ptr<humoto::obstacle_avoidance::ObstacleBase> > obstacles_;
 
             public:
                 /**

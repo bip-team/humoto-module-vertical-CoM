@@ -43,9 +43,9 @@ namespace humoto
 
 
                 // @copydoc humoto::TaskBase::form
-                void form(  const humoto::SolutionStructure &sol_structure,
-                            const humoto::Model &model_base,
-                            const humoto::ControlProblem &control_problem)
+                void form(const humoto::SolutionStructure &sol_structure,
+                          const humoto::Model &model_base,
+                          const humoto::ControlProblem &control_problem)
                 {
                     const humoto::wpg04::MPCforWPG& mpc = dynamic_cast<const humoto::wpg04::MPCforWPG &>(control_problem);
                     const humoto::wpg04::Model& model = dynamic_cast<const humoto::wpg04::Model&>(model_base);
@@ -73,7 +73,7 @@ namespace humoto
                         A.setZero();
                         b.setZero();
                     }
-                };
+                }
 
 
                 /// @copydoc humoto::TaskBase::guessActiveSet
