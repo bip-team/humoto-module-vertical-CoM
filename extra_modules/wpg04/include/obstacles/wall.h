@@ -17,6 +17,13 @@ namespace humoto
          */
         class HUMOTO_LOCAL Wall : public humoto::obstacle_avoidance::ObstacleBase
         {
+
+            #define HUMOTO_CONFIG_SECTION_ID "Wall"
+            #define HUMOTO_CONFIG_CONSTRUCTOR Wall
+            #define HUMOTO_CONFIG_ENTRIES \
+                HUMOTO_CONFIG_PARENT_CLASS(humoto::obstacle_avoidance::ObstacleBase)
+            #include HUMOTO_CONFIG_DEFINE_ACCESSORS
+
             public:
                 /**
                  * @brief Constructor.

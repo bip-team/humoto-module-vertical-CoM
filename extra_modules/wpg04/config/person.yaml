@@ -1,0 +1,8 @@
+"Circle":
+    "position" : [2.0,-1.0,0.0]
+    "velocity" : [0.0,0.0,0.0]
+    "acceleration" : [0.0,0.0,0.0]
+    "rpy" : [0.0,0.0,0.0]
+    "angular_velocity" : [0.0,0.0,0.0]
+    "angular_acceleration" : [0.0,0.0,0.0]
+    "radius" : 0.8

@@ -17,6 +17,14 @@ namespace humoto
          */
         class HUMOTO_LOCAL Circle : public humoto::obstacle_avoidance::ObstacleBase
         {
+
+            #define HUMOTO_CONFIG_SECTION_ID "Circle"
+            #define HUMOTO_CONFIG_CONSTRUCTOR Circle
+            #define HUMOTO_CONFIG_ENTRIES \
+                HUMOTO_CONFIG_SCALAR_(radius) \
+                HUMOTO_CONFIG_PARENT_CLASS(humoto::obstacle_avoidance::ObstacleBase)
+            #include HUMOTO_CONFIG_DEFINE_ACCESSORS
+
             public:
                 /**
                  * @brief Constructor.
