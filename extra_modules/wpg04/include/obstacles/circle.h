@@ -92,16 +92,43 @@ namespace humoto
                     // condensation of the previous CoM position
                     prev_com_pos  = mpc.position_selector_ * mpc.prev_S_ * old_solution.get_x() + mpc.position_selector_ * mpc.prev_s_;
 
+                    Eigen::VectorXd prev_M0(9);
+                    prev_M0 << position_.x(), velocity_.x(), acceleration_.x(),
+                               position_.y(), velocity_.y(), acceleration_.y(),
+                               position_.z(), velocity_.z(), acceleration_.z();
+                    Eigen::MatrixXd A = humoto::rigidbody::TripleIntegrator::getAJerk<3>(0.1);
+                    Eigen::MatrixXd A_cond(9*mpc.getPreviewHorizonLength(), 9);
+
+                    for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); i++)
+                    {
+                        if (i == 0)
+                        {
+                            A_cond.block(0, 0, 9, 9) << A;
+                        }
+                        else
+                        {
+                            A_cond.block(i*9, 0, 9, 9) << A_cond.block((i-1)*9, 0, 9, 9) * A;
+                        }
+                    }
+
+                    Eigen::VectorXd prev_MAll(9*mpc.getPreviewHorizonLength());
+                    prev_MAll << A_cond * prev_M0;
+
                     // condensation of the previous state of the obstacle
                     // in the static case also the current state of the obstacle
                     for(std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
                     {
-                        prev_M.segment(i * 2, 2) << position_(0),position_(1);
+                        //prev_M.segment(i * 2, 2) << position_(0),position_(1);
+                        prev_M.segment(i * 2, 2) << prev_MAll(i*9), prev_MAll(i*9 + 3);
 
                         // this condensation is only valid in the case that the
                         // obstacle is considered static.
-                        M.segment(i * 2, 2) << prev_M.segment(i * 2, 2);
+                        //M.segment(i * 2, 2) << prev_M.segment(i * 2, 2);
                     }
+
+                    std::cout << prev_M << std::endl;
+
+                    M << prev_M;
 
                     // all zeros inside the n matrix
                     n.setZero();

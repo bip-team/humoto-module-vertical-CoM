@@ -48,8 +48,6 @@ namespace humoto
                     Eigen::MatrixXd &A = getA();
                     Eigen::VectorXd lb_aux;
                     Eigen::VectorXd ub_aux;
-                    etools::Vector2 lb_aux_segment;
-                    etools::Vector2 ub_aux_segment;
                     Eigen::VectorXd &lb = getLowerBounds();
                     Eigen::VectorXd &ub = getUpperBounds();
                     Eigen::VectorXd sv;
@@ -58,12 +56,6 @@ namespace humoto
                     // dC = [c^x_1 c^y_1 c^x_2 c^y_2 ...]
                     sv = mpc.velocity_selector_ * mpc.s_; /*sv*/
 
-                    lb_aux_segment << mpc.preview_horizon_.intervals_[1].com_vel_bound_x_(0),
-                    mpc.preview_horizon_.intervals_[1].com_vel_bound_y_(0);
-
-                    ub_aux_segment << mpc.preview_horizon_.intervals_[1].com_vel_bound_x_(1),
-                    mpc.preview_horizon_.intervals_[1].com_vel_bound_y_(1);
-
                     lb_aux.resize(number_of_constraints);
                     ub_aux.resize(number_of_constraints);
                     lb.resize(number_of_constraints);
@@ -71,25 +63,14 @@ namespace humoto
 
                     for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
                     {
-                        //lb.segment(i*2, 2) = mpc.preview_horizon_.getCoMVelBounds(i).col(0);
-                        //ub.segment(i*2, 2) = mpc.preview_horizon_.getCoMVelBounds(i).col(1);
-                        lb_aux.segment(i*2, 2) = lb_aux_segment;
-                        ub_aux.segment(i*2, 2) = ub_aux_segment;
+                        lb_aux.segment(i*2, 2) = mpc.preview_horizon_.intervals_[i].cvel_bounds_.col(0);
+                        ub_aux.segment(i*2, 2) = mpc.preview_horizon_.intervals_[i].cvel_bounds_.col(1);
                     }
 
                     // lb - sv =< Sv * X =< lb - sv
                     lb.noalias() = lb_aux - sv;
                     ub.noalias() = ub_aux - sv;
                     A.noalias()  = mpc.velocity_selector_ * mpc.S_; // Sv
-
-                    // for (std::size_t i = 0; i < loc_var.length_/2; ++i)
-                    // {
-                    //     I[i*2]     = loc_var.offset_ + i*2;
-                    //     I[i*2+1]   = loc_var.offset_ + i*2 + 1;
-                    //
-                    //     lb.segment(i*2, 2) = mpc.preview_horizon_.getCoMVelBounds(i).col(0);
-                    //     ub.segment(i*2, 2) = mpc.preview_horizon_.getCoMVelBounds(i).col(1);
-                    // }
                 }
 
 

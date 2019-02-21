@@ -29,6 +29,8 @@ namespace humoto
                 HUMOTO_CONFIG_COMPOUND_(com_position)\
                 HUMOTO_CONFIG_COMPOUND_(com_velocity_bound_x)\
                 HUMOTO_CONFIG_COMPOUND_(com_velocity_bound_y)\
+                HUMOTO_CONFIG_COMPOUND_(com_position_bound_x)\
+                HUMOTO_CONFIG_COMPOUND_(com_position_bound_y)\
                 HUMOTO_CONFIG_COMPOUND_(first_stance_com_velocity)\
                 HUMOTO_CONFIG_COMPOUND_(last_stance_com_velocity)\
                 HUMOTO_CONFIG_SCALAR_(step_height)\
@@ -43,6 +45,8 @@ namespace humoto
                 etools::Vector2    com_position_;
                 etools::Vector2    com_velocity_bound_x_;
                 etools::Vector2    com_velocity_bound_y_;
+                etools::Vector2    com_position_bound_x_;
+                etools::Vector2    com_position_bound_y_;
 
                 etools::Vector2    first_stance_com_velocity_;
                 etools::Vector2    last_stance_com_velocity_;
@@ -72,6 +76,8 @@ namespace humoto
                     com_position_               << 0., 0.;
                     com_velocity_bound_x_       << -0.1, 0.1;
                     com_velocity_bound_y_       << -0.3, 0.3;
+                    com_position_bound_x_       << -0.1, 0.1;
+                    com_position_bound_y_       << -0.3, 0.3;
 
                     first_stance_com_velocity_  << 0.2, 0.;
                     last_stance_com_velocity_   << 0.,  0.;

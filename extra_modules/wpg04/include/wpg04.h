@@ -38,6 +38,7 @@ namespace humoto
 
 #include "wpg04/task_comvelocity.h"
 #include "wpg04/task_composition.h"
+#include "wpg04/task_compositionbounds.h"
 #include "wpg04/task_comvelocitybounds.h"
 
 #include "wpg04/task_copbounds.h"

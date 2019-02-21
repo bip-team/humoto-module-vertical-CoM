@@ -24,20 +24,18 @@ namespace humoto
                 etools::Vector2 cvel_ref_;
                 etools::Vector2 cpos_ref_;
 
-                etools::Vector2 com_vel_bound_x_;
-                etools::Vector2 com_vel_bound_y_;
-
                 double           theta_;
 
                 etools::Matrix2 rotation_;
                 etools::Vector2 R_cvel_ref_;
+                etools::Vector2 R_cpos_ref_;
+
                 double           step_height_;
 
                 etools::Matrix2 fd_bounds_;
                 etools::Matrix2 cop_bounds_;
 
-
-
+                etools::Matrix2 cpos_bounds_;
 
             public:
                 /**
@@ -53,11 +51,12 @@ namespace humoto
 
                     etools::unsetMatrix(rotation_);
                     etools::unsetMatrix(R_cvel_ref_);
+                    etools::unsetMatrix(R_cpos_ref_);
 
                     etools::unsetMatrix(fd_bounds_);
                     etools::unsetMatrix(cop_bounds_);
-                    etools::unsetMatrix(com_vel_bound_x_);
-                    etools::unsetMatrix(com_vel_bound_y_);
+
+                    etools::unsetMatrix(cpos_bounds_);
                 }
 
 
@@ -95,10 +94,10 @@ namespace humoto
                     logger.log(LogEntryName(subname).add("cpos_ref")  , cpos_ref_);
                     logger.log(LogEntryName(subname).add("rotation")  , rotation_);
                     logger.log(LogEntryName(subname).add("R_cvel_ref"), R_cvel_ref_);
+                    logger.log(LogEntryName(subname).add("R_cpos_ref"), R_cpos_ref_);
                     logger.log(LogEntryName(subname).add("fd_bounds") , fd_bounds_);
                     logger.log(LogEntryName(subname).add("cop_bounds"), cop_bounds_);
-                    logger.log(LogEntryName(subname).add("com_vel_bound_x_"), com_vel_bound_x_);
-                    logger.log(LogEntryName(subname).add("com_vel_bound_y_"), com_vel_bound_y_);
+                    logger.log(LogEntryName(subname).add("cpos_bounds"), cpos_bounds_);
 
                     humoto::walking::Stance::log(logger, subname, "stance");
                 }
@@ -117,8 +116,8 @@ namespace humoto
                 etools::Vector2 cvel_ref_;
                 etools::Vector2 cpos_ref_;
 
-                etools::Vector2 com_vel_bound_x_;
-                etools::Vector2 com_vel_bound_y_;
+                etools::Matrix2 cvel_bounds_;
+                //etools::Matrix2 cpos_bounds_;
 
                 double com_height_;
                 double omega_;
@@ -146,8 +145,8 @@ namespace humoto
                     logger.log(LogEntryName(subname).add("T")           , T_          );
                     logger.log(LogEntryName(subname).add("cvel_ref")    , cvel_ref_   );
                     logger.log(LogEntryName(subname).add("cpos_ref")    , cpos_ref_   );
-                    logger.log(LogEntryName(subname).add("com_vel_bound_x"), com_vel_bound_x_);
-                    logger.log(LogEntryName(subname).add("com_vel_bound_y"), com_vel_bound_y_);
+                    logger.log(LogEntryName(subname).add("cvel_bounds") , cvel_bounds_);
+                    //logger.log(LogEntryName(subname).add("cpos_bounds"), cpos_bounds_);
                 }
         };
 
@@ -189,7 +188,18 @@ namespace humoto
                     return (walk_states_[state_index].cop_bounds_);
                 }
 
-
+                /**
+                 * @brief Get CoM position bounds
+                 *
+                 * @param[in] interval_index
+                 *
+                 * @return 2d matrix [lb, ub]
+                 */
+                etools::Matrix2    getCoMBounds(const std::size_t interval_index) const
+                {
+                    std::size_t state_index = intervals_[interval_index].state_index_;
+                    return (walk_states_[state_index].cpos_bounds_);
+                }
 
 
                 /**
@@ -296,45 +306,53 @@ namespace humoto
                 switch(state.type_)
                 {
                     case humoto::walking::StanceType::LSS:
-                        state.theta_    = lss_theta;
-                        state.cvel_ref_ = walk_parameters.com_velocity_;
-                        state.cpos_ref_ = walk_parameters.com_position_;
-                        state.com_vel_bound_x_ = walk_parameters.com_velocity_bound_x_;
-                        state.com_vel_bound_y_ = walk_parameters.com_velocity_bound_y_;
+                        state.theta_        = lss_theta;
+                        state.cvel_ref_     = walk_parameters.com_velocity_;
+                        state.cpos_ref_     = walk_parameters.com_position_;
+                        //state.cvel_bounds_  <<  walk_parameters.com_velocity_bound_x_(0), walk_parameters.com_velocity_bound_x_(1),
+                        //                        walk_parameters.com_velocity_bound_y_(0), walk_parameters.com_velocity_bound_y_(1);
+                        state.cpos_bounds_  <<  walk_parameters.com_position_bound_x_(0), walk_parameters.com_position_bound_x_(1),
+                                                walk_parameters.com_position_bound_y_(0), 0;
                         break;
                     case humoto::walking::StanceType::RSS:
-                        state.theta_    = rss_theta;
-                        state.cvel_ref_ = walk_parameters.com_velocity_;
-                        state.cpos_ref_ = walk_parameters.com_position_;
-                        state.com_vel_bound_x_ = walk_parameters.com_velocity_bound_x_;
-                        state.com_vel_bound_y_ = walk_parameters.com_velocity_bound_y_;
+                        state.theta_        = rss_theta;
+                        state.cvel_ref_     = walk_parameters.com_velocity_;
+                        state.cpos_ref_     = walk_parameters.com_position_;
+                        //state.cvel_bounds_  <<  walk_parameters.com_velocity_bound_x_(0), walk_parameters.com_velocity_bound_x_(1),
+                        //                        walk_parameters.com_velocity_bound_y_(0), walk_parameters.com_velocity_bound_y_(1);
+                        state.cpos_bounds_  <<  walk_parameters.com_position_bound_x_(0), walk_parameters.com_position_bound_x_(1),
+                                                                                       0, walk_parameters.com_position_bound_y_(1);
                         break;
                     case humoto::walking::StanceType::DS:
-                        state.theta_       = ds_theta;
                         if (state.subtype_ == humoto::walking::StanceSubType::FIRST)
                         {
                             state.cvel_ref_ = walk_parameters.first_stance_com_velocity_;
-                            state.cpos_ref_ = walk_parameters.com_position_;
-                            state.com_vel_bound_x_ = walk_parameters.com_velocity_bound_x_;
-                            state.com_vel_bound_y_ = walk_parameters.com_velocity_bound_y_;
                         }
                         else if(state.subtype_ == humoto::walking::StanceSubType::LAST)
                         {
                             state.cvel_ref_ = walk_parameters.last_stance_com_velocity_;
-                            state.cpos_ref_ = walk_parameters.com_position_;
-                            state.com_vel_bound_x_ = walk_parameters.com_velocity_bound_x_;
-                            state.com_vel_bound_y_ = walk_parameters.com_velocity_bound_y_;
                         }
                         else
                         {
                             HUMOTO_THROW_MSG("Unsupported stance subtype.");
                         }
+
+                        state.theta_        = ds_theta;
+                        state.cpos_ref_     = walk_parameters.com_position_;
+                        //state.cvel_bounds_  <<  walk_parameters.com_velocity_bound_x_(0), walk_parameters.com_velocity_bound_x_(1),
+                        //                        walk_parameters.com_velocity_bound_y_(0), walk_parameters.com_velocity_bound_y_(1);
+                        // TODO This boundaries on the CoM are not correct
+                        state.cpos_bounds_  <<  walk_parameters.com_position_bound_x_(0), walk_parameters.com_position_bound_x_(1),
+                                                walk_parameters.com_position_bound_y_(0), walk_parameters.com_position_bound_y_(1);
                         break;
                     case humoto::walking::StanceType::TDS:
                         state.cvel_ref_ = walk_parameters.com_velocity_;
                         state.cpos_ref_ = walk_parameters.com_position_;
-                        state.com_vel_bound_x_ = walk_parameters.com_velocity_bound_x_;
-                        state.com_vel_bound_y_ = walk_parameters.com_velocity_bound_y_;
+                        //state.cvel_bounds_ << walk_parameters.com_velocity_bound_x_(0), walk_parameters.com_velocity_bound_x_(1),
+                        //                      walk_parameters.com_velocity_bound_y_(0), walk_parameters.com_velocity_bound_y_(1);
+                        // TODO This boundaries on the CoM are not correct
+                        state.cpos_bounds_  <<  walk_parameters.com_position_bound_x_(0), walk_parameters.com_position_bound_x_(1),
+                                                walk_parameters.com_position_bound_y_(0), walk_parameters.com_position_bound_y_(1);
 
                         state.theta_ = ds_theta;
 
@@ -370,9 +388,13 @@ namespace humoto
                         HUMOTO_THROW_MSG("Unsupported stance type.");
                         break;
                 }
+
                 state.rotation_    = Eigen::Rotation2Dd(state.theta_);
                 state.R_cvel_ref_.noalias()  = state.rotation_ * state.cvel_ref_;
+                state.R_cpos_ref_.noalias()  = state.rotation_ * state.cpos_ref_;
                 state.step_height_ = 0.;
+
+                state.cpos_bounds_ = state.rotation_ * state.cpos_bounds_;
 
                 if (humoto::walking::StanceType::TDS != state.type_)
                 {
@@ -386,9 +408,9 @@ namespace humoto
                     }
 
                     getConstraints(state, model, wp);
-
                     step++;
                 }
+
                 walk_states_[i] = state;
             }
         }
@@ -452,9 +474,9 @@ namespace humoto
 
                 PreviewHorizonInterval  interval;
                 interval.cvel_ref_    = state.R_cvel_ref_;
-                interval.cpos_ref_    = walk_parameters.com_position_;
-                interval.com_vel_bound_x_ = walk_parameters.com_velocity_bound_x_;
-                interval.com_vel_bound_y_ = walk_parameters.com_velocity_bound_y_;
+                interval.cpos_ref_    = state.R_cpos_ref_;
+                interval.cvel_bounds_ << walk_parameters.com_velocity_bound_x_(0), walk_parameters.com_velocity_bound_x_(1),
+                                         walk_parameters.com_velocity_bound_y_(0), walk_parameters.com_velocity_bound_y_(1);
                 interval.com_height_  = model.getCoMHeight();
                 interval.omega_       = model.getOmega(interval.com_height_);
 
