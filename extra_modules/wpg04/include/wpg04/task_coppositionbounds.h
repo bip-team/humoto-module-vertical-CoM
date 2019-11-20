@@ -17,7 +17,7 @@ namespace humoto
         /**
          * @brief [task_copbounds.m]
          */
-        class HUMOTO_LOCAL TaskCoPBounds : public humoto::TaskILU
+        class HUMOTO_LOCAL TaskCoPPositionBounds : public humoto::TaskILU
         {
             #define HUMOTO_CONFIG_ENTRIES \
                 HUMOTO_CONFIG_PARENT_CLASS(TaskILU)
@@ -32,7 +32,7 @@ namespace humoto
 
 
             public:
-                TaskCoPBounds() : TaskILU("TaskCoPBounds")
+                TaskCoPPositionBounds() : TaskILU("TaskCoPPositionBounds")
                 {
                 }
 

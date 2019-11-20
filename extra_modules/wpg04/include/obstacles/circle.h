@@ -134,8 +134,6 @@ namespace humoto
                         //M.segment(i * 2, 2) << prev_M.segment(i * 2, 2);
                     }
 
-                    std::cout << prev_M << std::endl;
-
                     M << prev_M;
 
                     // all zeros inside the n matrix

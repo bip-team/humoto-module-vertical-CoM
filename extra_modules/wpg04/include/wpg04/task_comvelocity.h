@@ -64,7 +64,6 @@ namespace humoto
                     }
 
                     A.noalias() = getGain() * (mpc.velocity_selector_ * mpc.S_); // Sv
-
                     b.noalias() = -getGain() * (mpc.velocity_selector_ * mpc.s_ /*sv*/ - cvel_ref);
                 };
         };

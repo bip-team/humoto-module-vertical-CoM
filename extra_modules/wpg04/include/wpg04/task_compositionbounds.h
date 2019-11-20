@@ -17,7 +17,7 @@ namespace humoto
         /**
          * @brief 
          */
-        class HUMOTO_LOCAL TaskCoMPosBounds : public humoto::TaskALU
+        class HUMOTO_LOCAL TaskCoMPositionBounds : public humoto::TaskALU
         {
             #define HUMOTO_CONFIG_ENTRIES \
                 HUMOTO_CONFIG_PARENT_CLASS(TaskALU)
@@ -31,7 +31,7 @@ namespace humoto
 
 
             public:
-                TaskCoMPosBounds() : TaskALU("TaskCoMPosBounds")
+                TaskCoMPositionBounds() : TaskALU("TaskCoMPositionBounds")
                 {
                 }
 
@@ -44,6 +44,8 @@ namespace humoto
                     const humoto::wpg04::MPCforWPG& mpc = dynamic_cast <const humoto::wpg04::MPCforWPG &> (control_problem);
                     std::size_t number_of_constraints = mpc.getPreviewHorizonLength()*2;
                     std::size_t number_of_variables = sol_structure.getNumberOfVariables();
+                    Location feet_var = sol_structure.getSolutionPartLocation(FOOTPOS_VARIABLES_ID);
+                    Location cop_var = sol_structure.getSolutionPartLocation(COP_VARIABLES_ID);
 
                     Eigen::MatrixXd &A = getA();
                     Eigen::VectorXd &lb = getLowerBounds();
@@ -53,9 +55,12 @@ namespace humoto
                     Eigen::VectorXd ub_aux;
                     Eigen::VectorXd sp;
 
-                    // dC = Sp * X + sp
-                    // dF = Vfp * X + vfp
+                    Eigen::MatrixXd footsteps_selector(feet_var.length_, number_of_variables);
+                    footsteps_selector << Eigen::MatrixXd::Zero(feet_var.length_, cop_var.length_),
+                                          Eigen::MatrixXd::Identity(feet_var.length_, feet_var.length_);
 
+                    // CoM = position_selector * (S_ * X + s_)
+                    // Feet = V_ * footstep_selector * X + V0_
                     A.resize(number_of_constraints, number_of_variables);
                     lb_aux.resize(number_of_constraints);
                     ub_aux.resize(number_of_constraints);
@@ -68,10 +73,10 @@ namespace humoto
                         ub_aux.segment(i*2, 2) = mpc.preview_horizon_.getCoMBounds(i).col(1);
                     }
 
-                    // lb - sp + vfp =< (Sp - Vfp) * X =< lb - sp + vfp
-                    lb.noalias() = lb_aux - mpc.position_selector_ * mpc.s_ + mpc.vfp_;
-                    ub.noalias() = ub_aux - mpc.position_selector_ * mpc.s_ + mpc.vfp_;
-                    A.noalias()  = mpc.position_selector_ * mpc.S_ - mpc.Vfp_; // Sp - Vfp
+                    // lb - position_selector * s_ + V0_ =< (position_selector * S_ - V_ * footstep_selector) * X =< ub - position_selector * s_ + V0_
+                    lb.noalias() = lb_aux - (mpc.position_selector_ * mpc.s_ - mpc.V0_);
+                    ub.noalias() = ub_aux - (mpc.position_selector_ * mpc.s_ - mpc.V0_);
+                    A.noalias()  = mpc.position_selector_ * mpc.S_ - mpc.V_ * footsteps_selector; // Sp - Vfp
                 }
 
 

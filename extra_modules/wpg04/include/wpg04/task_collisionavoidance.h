@@ -15,7 +15,7 @@ namespace humoto
 {
     namespace wpg04
     {
-        class HUMOTO_LOCAL TaskCollAvoidance : public humoto::TaskAL
+        class HUMOTO_LOCAL TaskCollisionAvoidance : public humoto::TaskAL
         {
             #define HUMOTO_CONFIG_ENTRIES \
                 HUMOTO_CONFIG_PARENT_CLASS(TaskAL)
@@ -36,7 +36,7 @@ namespace humoto
 
 
             public:
-                TaskCollAvoidance() : TaskAL("TaskCollAvoidance")
+                TaskCollisionAvoidance() : TaskAL("TaskCollisionAvoidance")
                 {
 
                 }

@@ -1,0 +1,85 @@
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%2345678901234567890123456789012345678901234567890123456789012345678901234567890
+%        1         2         3         4         5         6         7         8
+
+%\documentclass[letterpaper, 10 pt, conference]{IEEEconf}  % Comment this line out if you need a4paper
+
+
+\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4 paper
+\IEEEoverridecommandlockouts                              % This command is only needed if 
+                                                          % you want to use the \thanks command
+\overrideIEEEmargins                                      % Needed to meet printer requirements.
+% See the \addtolength command later in the file to balance the column lengths
+% on the last page of the document
+\usepackage{booktabs}     % In order to use: \toprule, \midrule, \bottomrule
+% The following packages can be found on http:\\www.ctan.org
+\usepackage{graphics} % for pdf, bitmapped graphics files
+\usepackage{epsfig} % for postscript graphics files
+\usepackage{times} % assumes new font selection scheme installed
+\usepackage{amsmath} % assumes amsmath package installed
+\usepackage{amssymb}  % assumes amsmath package installed
+% % % % % % % % % Added by me % % % %
+\usepackage{import}
+\usepackage{paralist}
+\usepackage{subcaption}
+\usepackage{lipsum}
+\usepackage{color}
+
+\usepackage{lscape}
+
+\newtheorem{mdef}{Definition}
+
+\newcommand{\sn}[1]{{\ttfamily #1}}
+
+% In this order % %
+\makeatletter
+\let\NAT@parse\undefined
+\makeatother
+
+\usepackage{url}
+%\usepackage[colorlinks=true]{hyperref}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks 	 = true,
+    citecolor	  = {cyan},
+    linkcolor  	  = magenta,
+    urlcolor       = red,
+}
+% %
+
+\newcommand{\diag}{\mathop{\mathrm{diag}}}
+
+% % % % % % % % % % % % % % % % % % %
+\title{\LARGE \bf
+Collision Avoidance Constraints in \sn{HuMoTo}
+}
+
+
+\author{Matteo Ciocca}
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+Integrate in \sn{HumoTo} the collision avoidance constraints proposed in \cite{bohorquez2016navig,AlHomsi2016}.
+
+%rem tene, verba sequentur
+%remember Matteo "rem tene, verba sequentur" always!
+\end{abstract}
+
+\import{tex/}{introduction}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,references}
+
+
+
+
+\end{document}

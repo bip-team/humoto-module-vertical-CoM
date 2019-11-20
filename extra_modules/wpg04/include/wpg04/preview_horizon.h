@@ -146,7 +146,7 @@ namespace humoto
                     logger.log(LogEntryName(subname).add("cvel_ref")    , cvel_ref_   );
                     logger.log(LogEntryName(subname).add("cpos_ref")    , cpos_ref_   );
                     logger.log(LogEntryName(subname).add("cvel_bounds") , cvel_bounds_);
-                    //logger.log(LogEntryName(subname).add("cpos_bounds"), cpos_bounds_);
+                    //logger.log(LogEntryName(subname).add("cpos_bounds") , cpos_bounds_);
                 }
         };
 
@@ -309,8 +309,6 @@ namespace humoto
                         state.theta_        = lss_theta;
                         state.cvel_ref_     = walk_parameters.com_velocity_;
                         state.cpos_ref_     = walk_parameters.com_position_;
-                        //state.cvel_bounds_  <<  walk_parameters.com_velocity_bound_x_(0), walk_parameters.com_velocity_bound_x_(1),
-                        //                        walk_parameters.com_velocity_bound_y_(0), walk_parameters.com_velocity_bound_y_(1);
                         state.cpos_bounds_  <<  walk_parameters.com_position_bound_x_(0), walk_parameters.com_position_bound_x_(1),
                                                 walk_parameters.com_position_bound_y_(0), 0;
                         break;
@@ -318,8 +316,6 @@ namespace humoto
                         state.theta_        = rss_theta;
                         state.cvel_ref_     = walk_parameters.com_velocity_;
                         state.cpos_ref_     = walk_parameters.com_position_;
-                        //state.cvel_bounds_  <<  walk_parameters.com_velocity_bound_x_(0), walk_parameters.com_velocity_bound_x_(1),
-                        //                        walk_parameters.com_velocity_bound_y_(0), walk_parameters.com_velocity_bound_y_(1);
                         state.cpos_bounds_  <<  walk_parameters.com_position_bound_x_(0), walk_parameters.com_position_bound_x_(1),
                                                                                        0, walk_parameters.com_position_bound_y_(1);
                         break;
@@ -339,8 +335,6 @@ namespace humoto
 
                         state.theta_        = ds_theta;
                         state.cpos_ref_     = walk_parameters.com_position_;
-                        //state.cvel_bounds_  <<  walk_parameters.com_velocity_bound_x_(0), walk_parameters.com_velocity_bound_x_(1),
-                        //                        walk_parameters.com_velocity_bound_y_(0), walk_parameters.com_velocity_bound_y_(1);
                         // TODO This boundaries on the CoM are not correct
                         state.cpos_bounds_  <<  walk_parameters.com_position_bound_x_(0), walk_parameters.com_position_bound_x_(1),
                                                 walk_parameters.com_position_bound_y_(0), walk_parameters.com_position_bound_y_(1);
@@ -348,8 +342,6 @@ namespace humoto
                     case humoto::walking::StanceType::TDS:
                         state.cvel_ref_ = walk_parameters.com_velocity_;
                         state.cpos_ref_ = walk_parameters.com_position_;
-                        //state.cvel_bounds_ << walk_parameters.com_velocity_bound_x_(0), walk_parameters.com_velocity_bound_x_(1),
-                        //                      walk_parameters.com_velocity_bound_y_(0), walk_parameters.com_velocity_bound_y_(1);
                         // TODO This boundaries on the CoM are not correct
                         state.cpos_bounds_  <<  walk_parameters.com_position_bound_x_(0), walk_parameters.com_position_bound_x_(1),
                                                 walk_parameters.com_position_bound_y_(0), walk_parameters.com_position_bound_y_(1);
@@ -393,8 +385,10 @@ namespace humoto
                 state.R_cvel_ref_.noalias()  = state.rotation_ * state.cvel_ref_;
                 state.R_cpos_ref_.noalias()  = state.rotation_ * state.cpos_ref_;
                 state.step_height_ = 0.;
+                std::cout << state.theta_ << std::endl;
 
-                state.cpos_bounds_ = state.rotation_ * state.cpos_bounds_;
+                //state.cpos_bounds_ = state.rotation_ * state.cpos_bounds_;
+                std::cout << state.cpos_bounds_ << std::endl;
 
                 if (humoto::walking::StanceType::TDS != state.type_)
                 {

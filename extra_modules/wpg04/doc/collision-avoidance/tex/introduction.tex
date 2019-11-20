@@ -1,0 +1,256 @@
+
+
+
+%\section{Dynamical System Used in \cite{bohorquez2016navig}}
+%
+%The motion of the CoM $c$ of a legged robot is
+%commonly modeled as a triple integrator \cite{wieber2006lmpcwalking}:
+%\begin{equation}\label{eq:CoMmotion}
+%	\hat{c}^+=\begin{bmatrix}1&T&T^2/2\\0&1&T\\0&0&1\end{bmatrix}\hat{c}+\begin{bmatrix}T^3/6\\T^2/2\\T\end{bmatrix}\dddot{c}\:\:,
+%\end{equation}
+%where $T$ is the sampling time, $\hat{c}=(c,\dot{c},\ddot{c})$ and $\hat{c}^+=(c^+,\dot{c}^+,\ddot{c}^+)$ are two consecutive states, and $\dddot{c}$ is the CoM jerk. The dynamics \eqref{eq:CoMmotion} is used to describe the horizontal motion of the CoM along two axes decoupled and identical. By iterating $N$ times the motion of the CoM, we obtain:
+%\begin{equation}
+%	\hat{C}=\bar{A}_c\hat{c}+\bar{B}_c\mathcal{U}_{\dddot{c}}
+%\end{equation}
+%where $\mathcal{U}_{\dddot{c}}\in\mathbb{R}^{2N}$ is a sequence of CoM jerk. And combined with $N$ versions of the linear CoM-CoP relationship \cite{wieber2006lmpcwalking} we relate at once $N$ values of the jerk $\dddot{c}$ of the CoM with $N$ values of the position $p$ of the CoP
+%\begin{equation}
+%	P=\bar{A}_{p}\hat{c}+\bar{B}_{p}\mathcal{U}_{\dddot{c}}
+%\end{equation}
+%where $(\bar{A}_c,\bar{B}_c)$ and $(\bar{A}_p,\bar{B}_p)$ are described in \cite{Herdt2010online}. This recursive relationship can be applied to the description of the footsteps as
+%\begin{equation}
+%	S=V^cs_j+V^f\mathcal{U}_s
+%\end{equation}
+%where $\mathcal{U}_s\in\mathbb{R}^{2m}$ is a sequence of future footstep positions and $(V^c,V^f)$ are cyclic time-varying matrices that timing the selection of future steps based on selected step-time duration \cite{Herdt2010}. With this model we define the following set of constraints.
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+\section{Control Problem in \sn{HumoTo}, \sn{WPG.04}}
+
+Step Selections:
+\begin{equation}
+	\hat{P}= V_0 + VP
+\end{equation}
+$V_0$ current step, $P$ future steps, $(V_0,V)$ proper selection matrices. CoP positions along the horizon:
+\begin{equation}
+	\begin{bmatrix}
+		z_1\\\vdots\\z_N
+	\end{bmatrix}=V_0 + VP + \diag_{k=1,\dots,N}(R_{\hat{p}_k})Z
+\end{equation}
+Model of the system:
+\begin{equation}
+			\begin{split}
+				\hat{c}_{k+1} &= A \hat{c}_k + B z_{k+1}\\
+				\dot{z}_k &= D \hat{c}_k + E z_{k+1}
+			\end{split}
+\end{equation}
+Condensation:
+\begin{equation}
+		\begin{split}
+			\hat{C} = U_x\hat{c}_0 + U_u\left(V_0 + VP + \diag_{k=1,\dots,N}(R_{\hat{p}_k})Z\right)\\
+			\dot{Z} = O_x\hat{c}_0 + O_u\left(V_0 + VP + \diag_{k=1,\dots,N}(R_{\hat{p}_k})Z\right)
+		\end{split}
+\end{equation}
+The unknowns $Z$ and $P$ can be grouped together forming the control vector $X$:
+\begin{equation}
+		\begin{split}
+			\hat{C} &= \underbrace{\begin{bmatrix}U_u\diag_{k=1,\dots,N}(R_{\hat{p}_k}) & U_uV\end{bmatrix}}_{S}\underbrace{\begin{bmatrix}Z\\P\end{bmatrix}}_{X} + \underbrace{U_x\hat{c}_0 + U_uV_0}_{s}\\
+			\dot{Z} &= \underbrace{\begin{bmatrix}O_u\diag_{k=1,\dots,N}(R_{\hat{p}_k}) & O_uV\end{bmatrix}}_{S_{\dot{z}}}\underbrace{\begin{bmatrix}Z\\P\end{bmatrix}}_{X} + \underbrace{O_x\hat{c}_0 + O_u V_0}_{s_{\dot{z}}}
+		\end{split}
+\end{equation}
+Resulting in:
+\begin{equation}
+	\begin{split}
+		\hat{C} &= SX +s\\
+		\dot{Z} &= S_{\dot{z}}X +s_{\dot{z}}
+	\end{split}
+\end{equation}
+The velocity of the CoM can be extracted with a selection matrix (for the velocity) $I_v$:
+\begin{equation}
+\dot{C} = \diag_N(I_v)\hat{C}= \diag_N(I_v)(SX +s) = S_vX + s_v
+\end{equation}
+For the position we use the selection matrix $I_p$:
+\begin{equation}
+C = \diag_N(I_p)\hat{C}= \diag_N(I_p)(SX +s) = S_pX + s_p
+\end{equation}
+Vector $\hat{C}$ and $C$ contains the followings:
+\begin{equation}
+\hat{C} = \begin{bmatrix}c^x_{k+1}\\\dot{c}^x_{k+1}\\\ddot{c}^x_{k+1}\\c^y_{k+1}\\\dot{c}^y_{k+1}\\\ddot{c}^y_{k+1}\\c^x_{k+2}\\\dot{c}^x_{k+2}\\\ddot{c}^x_{k+2}\\\vdots\\c^y_{k+N}\\\dot{c}^y_{k+N}\\\ddot{c}^y_{k+N}\end{bmatrix}\in\mathbb{R}^{6N}\:,\:C = \begin{bmatrix}c^x_{k+1}\\c^y_{k+1}\\c^x_{k+2}\\c^y_{k+2}\\\vdots\\c^x_{k+N}\\c^y_{k+N}\end{bmatrix}\in\mathbb{R}^{2N}
+\end{equation}
+
+\section{Collision Avoidance constraints}
+
+The constraints:
+\begin{equation}
+		||c-m^i||\geq d\:\in\mathbb{R}
+\end{equation}
+where the $m^i$ is the position of the $i$ obstalce. Along the horizon we ends up with:
+\begin{equation}
+	\vec{n}_k\left[S_pX + s_p - M\right] \geq D
+\end{equation}
+The condense position of the obstacle along the prediction horizon is formulated as:
+\begin{equation}
+M = \begin{bmatrix}m^x_1\\m^y_1\\m^x_2\\m^y_2\\\vdots\\m^x_N\\m^y_N\end{bmatrix}\in\mathbb{R}^{2N}
+\end{equation}
+But the condense distance vector has different size:
+\begin{equation}
+D = \begin{bmatrix}d_1\\d_2\\\vdots\\d_N\end{bmatrix}\in\mathbb{R}^{N}
+\end{equation}
+That can be translated in a $(A,b)$ structure as:
+\begin{equation}
+\underbrace{\vec{n}_kS_p}_{A}X \geq \underbrace{D + \vec{n}_k\left(M - s_p\right)}_{b}
+\end{equation}
+Creating a set of constraints of type \sn{TaskAL}:
+\begin{equation}
+AX \geq b \:\:(\text{ or $b \leq AX$} )
+\end{equation}
+Condense vector of distance from obstacle $D$. The matrix $n_k$ is:
+\begin{equation}
+		n_k=\begin{bmatrix}n^x&n^y\end{bmatrix}\in\mathbb{R}^{N\times 2N}
+\end{equation}
+where
+\begin{equation}
+n^T=\begin{bmatrix}\frac{(c_x-(m^i)^x)}{||c-m^i||}&\frac{(c_y-(m^i)^y)}{||c-m^i||}\end{bmatrix}^T\in\mathbb{R}^2
+\end{equation}	
+
+and condensing the $\vec{n}_k$ matrix along the horizon, we obtain:
+\begin{equation}
+\vec{n}_k=\begin{bmatrix}
+n^x_{k}&n^y_{k}&0&\dots&\dots&0\\
+0&0&n^x_{k+1}&n^y_{k+1}&0&\vdots\\
+\vdots&0&0&\ddots&0&0\\
+0&\dots&\dots&0&n^x_{k+N-1}&n^y_{k+N-1}\\
+\end{bmatrix}\in\mathbb{R}^{N\times 2N}
+\end{equation}
+The matrix $\vec{n}_k$ uses the values of  $C$ CoM and $M$ obstacle condense positions of the previous iteration. At the first instant in time it will have as the first row:
+\begin{equation}
+\vec{n}_k(1,:)=\begin{bmatrix}
+(n_{-1})^x&(n_{-1})^y&\mathbb{O}^T
+\end{bmatrix}
+\end{equation}
+Where $\mathbb{O}$ is a zero matrix of proper dimensions.
+
+
+\section{Code: no Field of View and only static obstacles}
+
+Obstacles are initialized as vectors (containing their position and orientations) and added as \sn{shared\_pointers} in \sn{model} before the simulation.
+
+\subsection{obstacle avoidance}
+
+Inside the simulation, after the update of the model of the robot, the obstacles "are updated":  the constraints are updated by the presence of the obstacles. \sn{updateObstacles} updates the collision avoidance constraints used in the hierarchical optimization problem. This update call \sn{resetConstraints} in case the index simulation time is $0$, or \sn{updateConstraints} otherwise. Both, are used to fill $(A,b)$ for the collision avoidance constraints.\\
+Once the constraints are update, inside \sn{task\_collavoidance}, the matrice $(A,b)$ of each obstacles are called and stacked together to be included in the optimization problem.\\
+Inside \sn{mpc\_wpg} the $(S_p,s_p)$ of the previous iteration are updated. The previous state of the obstacles are not updated because all visible and static.
+
+\subsection{model of the obstacle}
+
+For this scenario, the obstacle is modeled as a static circle in the space with the class \sn{ObstacleCircle}.\\
+{\color{red}REMARK: the orientation then does not make sense for this model.}
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+%\section{Collision Avoidance Constraints}
+%We have to ensure that the robot does not collide with the surrounding people. This constraint can be represented by:
+%\begin{equation}
+%		||c-m^i||\geq d\:\in\mathbb{R}
+%\end{equation}
+%Where $m^i$ is the 2D position of the $i$ person (appearing in the FoV). The implementation of this constraint was done by linearization obtaining the following:
+%\begin{equation}
+%			\left(\frac{(c-m^i)}{||c-m^i||}\right)^T(c-m^i)\geq d\:\:,
+%\end{equation}
+%where
+%\begin{equation}
+%	\begin{split}
+%		n^T&=\left(\frac{(c-m^i)}{||c-m^i||}\right)^T\\
+%		&=\begin{bmatrix}\frac{(c_x-(m^i)^x)}{||c-m^i||}&\frac{(c_y-(m^i)^y)}{||c-m^i||}\end{bmatrix}^T\\
+%		&=\begin{bmatrix}
+%				n^x&n^y
+%			\end{bmatrix}^T\in\mathbb{R}^2
+%	\end{split}
+%\end{equation}	
+%If more than one are in the FoV more than one constraint should be implemented. While $d$, scalar, respect the time law:
+%\begin{equation}
+%	d(t) = d_0 + ||\hat{m}^i(t)||+||\dot{\hat{m}}^i(t)||t
+%\end{equation}
+%discretized (with abuse of notation):
+%\begin{equation}
+%	d_k = d_0 + ||\hat{m}^i_k||+||\dot{\hat{m}}^i_k||(kT)
+%\end{equation}			
+%The $d_k$ can be compute recursively up to instant $k+N$, as well as $m_k$ and $c$:
+%\begin{equation}
+%	\begin{split}
+%		&D = \begin{bmatrix}
+%			d_{k+1}\\\vdots\\d_{k+N}
+%		\end{bmatrix}\in\mathbb{R}^{N\times 1}\\
+%		&M^i=\begin{bmatrix}(M^i)^x\\(M^i)^y\end{bmatrix}=\begin{bmatrix}
+%					(m^i_{k+1})^x\\\vdots\\(m^i_{k+N})^x\\(m^i_{k+1})^y\\\vdots\\(m^i_{k+N})^y
+%				\end{bmatrix}\in\mathbb{R}^{2N\times 1}\\
+%		&		C = \begin{bmatrix}
+%							C^x \\ C^y
+%						\end{bmatrix}=\begin{bmatrix}
+%											\bar{A}_{cp}\hat{c}^x+\bar{B}_{cp}\mathcal{U}^x_{\dddot{c}} \\ \bar{A}_{cp}\hat{c}^y+\bar{B}_{cp}\mathcal{U}^y_{\dddot{c}}
+%										\end{bmatrix}\in\mathbb{R}^{2N\times 1}\\
+%		&n^T_k=\begin{bmatrix}n^x&n^y\end{bmatrix}\in\mathbb{R}^{N\times 2N}
+% \end{split}
+%\end{equation}
+%where $n^x$ and $n^y$ are of the following form:
+%\begin{equation}
+%		n^{(\cdot)}=\begin{bmatrix}
+%						n^{(\cdot)}_{k}&&&\mathbb{O}\\
+%						&n^{(\cdot)}_{k+1}&&\\
+%						&&\dots&\\
+%						\mathbb{O}&&&n^{(\cdot)}_{k+N-1}\\
+% \end{bmatrix}\in\mathbb{R}^{N\times N}
+%\end{equation}
+%The matrix $n^T_k$ uses the values of  $C$ CoM condense positions of the previous iteration and $M$ (prediction of the people movement of the previous iteration). At the first instant in time it will have as the first row:
+%\begin{equation}
+%		n^T_k(1,:)=\begin{bmatrix}
+%						(n_{-1})^x&\mathbb{O}^T_{N-2}&(n_{-1})^y&\mathbb{O}^T_{N-2}
+% \end{bmatrix}
+%\end{equation}	
+%Building the recursive constraints for $C^x$ and $C^y$, we obtain:
+%\begin{equation}
+%	\begin{split}
+%		&n^T_k\begin{bmatrix}
+%								C^x -(M)^x\\C^y -(M)^y
+%				\end{bmatrix}\geq D\\
+%		&n^T_k\begin{bmatrix}
+%					\bar{A}_{cp}\hat{c}^x+\bar{B}_{cp}\mathcal{U}^x_{\dddot{c}}-(M)^x\\\bar{A}_{cp}\hat{c}^y+\bar{B}_{cp}\mathcal{U}^y_{\dddot{c}}-(M)^y
+%				\end{bmatrix}\geq D\\			
+%		&n^T_k\begin{bmatrix}
+%							\bar{B}_{cp}&0&0&0\\0&0&\bar{B}_{cp}&0\\
+%				\end{bmatrix}\begin{bmatrix}
+%							\mathcal{U}^x_{\dddot{c}}\\S^x\\\mathcal{U}^y_{\dddot{c}}\\S^y\end{bmatrix}\geq D+n^T_k\begin{bmatrix}
+%							(M)^x-\bar{A}_{cp}\hat{c}^x\\(M)^y-\bar{A}_{cp}\hat{c}^y
+%				\end{bmatrix}\\		
+%					&\underbrace{-\mathit{Inf}\cdot\mathbb{I}_{N\times 1}}_{\underbar{$b$}_{safe}}\leq\underbrace{n^T_k\begin{bmatrix}
+%							-\bar{B}_{cp}&0&0&0\\0&0&-\bar{B}_{cp}&0\\
+%							\end{bmatrix}}_{A_{safe}}\begin{bmatrix}
+%							\dddot{X}_k\\X^f_k\\\dddot{Y}_k\\Y^f_k\end{bmatrix}\leq\underbrace{-D+n^T_k\begin{bmatrix}
+%							\bar{A}_{cp}\hat{c}^x-(M)^x\\\bar{A}_{cp}\hat{c}^y-(M)^y\end{bmatrix}}_{\bar{b}_{safe}}\\	
+%		&\underbar{$b$}_{safe}\leq A_{safe}u_k \leq \bar{b}_{safe}	
+%	\end{split}
+%\end{equation}
+%	Where:
+%	\begin{equation}
+%		\begin{split}
+%		&\underbar{$b$}_{safe},\bar{b}_{safe}	\in\mathbb{R}^{N\times 1}\\
+%		&A_{safe}\in\mathbb{R}^{N\times (2N+2m)}
+%		\end{split}
+%	\end{equation}	
+%For each person entering in the field of view, we have to include a new block of $(A_{safe},b_{safe})$ for that person.
+%
+%
+%	\paragraph{Type of Constraint: }this constraint has only a lower (or upper bound), so it is decided to write it in the following, w.r.t. the humoto documentation,
+%	
+%	\begin{equation}
+%		\mathbf{\mathcal{A}}\mathbf{\mathcal{X}}\leq \bar{\mathbf{b}}
+%	\end{equation}
+%	
+%	Where
+%\begin{equation}
+%	\underbrace{n^T_k\begin{bmatrix}
+%							-\bar{B}_{cp}&0&0&0\\0&0&-\bar{B}_{cp}&0\\
+%							\end{bmatrix}}_{\mathbf{\mathcal{A}}}\underbrace{\begin{bmatrix}
+%							\dddot{X}_k\\X^f_k\\\dddot{Y}_k\\Y^f_k\end{bmatrix}}_{\mathbf{\mathcal{X}}}\leq\underbrace{-D+n^T_k\begin{bmatrix}
+%							\bar{A}_{cp}\hat{c}^x-(M)^x\\\bar{A}_{cp}\hat{c}^y-(M)^y\end{bmatrix}}_{\bar{\mathbf{b}}}
+%\end{equation}	
+%	

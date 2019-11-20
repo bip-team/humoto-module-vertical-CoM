@@ -43,25 +43,29 @@ namespace humoto
                     {
                         return (humoto::TaskSharedPointer(new humoto::wpg04::TaskFootstepBounds));
                     }
-                    if (string_id == "TaskCoPBounds")
+                    if (string_id == "TaskCoPPositionBounds")
                     {
-                        return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCoPBounds));
+                        return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCoPPositionBounds));
                     }
                     if (string_id == "TaskTerminalConstraint")
                     {
                         return (humoto::TaskSharedPointer(new humoto::wpg04::TaskTerminalConstraint));
                     }
-                    if (string_id == "TaskCollAvoidance")
+                    if (string_id == "TaskCollisionAvoidance")
                     {
-                        return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCollAvoidance));
+                        return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCollisionAvoidance));
                     }
                     if (string_id == "TaskCoMPosition")
                     {
                         return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCoMPosition));
                     }
-                    if (string_id == "TaskCoMVelBounds")
+                    if (string_id == "TaskCoMVelocityBounds")
                     {
-                        return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCoMVelBounds));
+                        return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCoMVelocityBounds));
+                    }
+                    if (string_id == "TaskCoMPositionBounds")
+                    {
+                        return (humoto::TaskSharedPointer(new humoto::wpg04::TaskCoMPositionBounds));
                     }
 
                     return(humoto::ConfigurableOptimizationProblem::getTask(string_id));
